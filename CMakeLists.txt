@@ -3,4 +3,11 @@ project(OS2 C)
 
 set(CMAKE_C_STANDARD 11)
 
-add_executable(OS2 main.c)
+find_package(Curses REQUIRED)
+include_directories(${CURSES_INCLUDE_DIR})
+
+add_executable(OS2
+        main.c
+        src/util.c)
+
+target_link_libraries(OS2 ${CURSES_LIBRARIES})
