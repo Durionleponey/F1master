@@ -8,6 +8,9 @@ include_directories(${CURSES_INCLUDE_DIR})
 
 add_executable(OS2
         main.c
-        src/util.c)
+        include/util.c
+        include/pilot.c
+        include/pilot.h
+)
 
 target_link_libraries(OS2 ${CURSES_LIBRARIES})

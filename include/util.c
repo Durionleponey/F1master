@@ -4,7 +4,7 @@
 #include <ncurses.h>
 
 int printLogo(void) {
-    clear(); // nettoie l'écran (équivalent de system("clear"))
+    clear();
 
     printw("  ______ __   __  __           _            \n");
     printw(" |  ____/_ | |  \\/  |         | |           \n");
@@ -15,7 +15,7 @@ int printLogo(void) {
     printw("                                            \n");
     printw("                                            \n");
 
-    refresh(); // met à jour l'affichage
+    refresh();
     return 0;
 }
 
