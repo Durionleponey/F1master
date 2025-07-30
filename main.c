@@ -17,6 +17,7 @@
 
 #define NUMBEROFKART 20
 #define NUMBEROFRACE 24
+#define NUMBEROFSECTOR 3
 
 #define MILLI_PER_MINUTE 1000
 
@@ -33,6 +34,9 @@ typedef struct kart {
     float s1, s2, s3;
     bool isOut;
 } Kart;
+
+
+Kart karts[NUMBEROFKART];
 
 
 
@@ -122,24 +126,24 @@ int genTimeCore(ProgramOptions *pParms) {
 
 
 
-
-  if (pParms->raceType == race_P1 || pParms->raceType == race_P2 || pParms->raceType == race_P3) {//si c'est practice
-    maxRaceTime = 60 * MILLI_PER_MINUTE;//1000
-  } else if (pParms->raceType == race_Q1_GP) {
-    maxRaceTime = 18 * MILLI_PER_MINUTE;
-  } else if (pParms->raceType == race_Q2_GP) {
-    maxRaceTime = 15 * MILLI_PER_MINUTE;
-  } else if (pParms->raceType == race_Q3_GP) {
-    maxRaceTime = 12 * MILLI_PER_MINUTE;
-  } else if (pParms->raceType == race_Q1_SPRINT) {
-    maxRaceTime = 12 * MILLI_PER_MINUTE;
-  } else if (pParms->raceType == race_Q2_SPRINT) {
-    maxRaceTime = 10 * MILLI_PER_MINUTE;
-  } else if (pParms->raceType == race_Q3_SPRINT) {
-    maxRaceTime = 8 * MILLI_PER_MINUTE;
-  } else {
-    maxRaceTime = 0;
-  }
+  //
+  // if (pParms->raceType == race_P1 || pParms->raceType == race_P2 || pParms->raceType == race_P3) {//si c'est practice
+  //   maxRaceTime = 60 * MILLI_PER_MINUTE;//1000
+  // } else if (pParms->raceType == race_Q1_GP) {
+  //   maxRaceTime = 18 * MILLI_PER_MINUTE;
+  // } else if (pParms->raceType == race_Q2_GP) {
+  //   maxRaceTime = 15 * MILLI_PER_MINUTE;
+  // } else if (pParms->raceType == race_Q3_GP) {
+  //   maxRaceTime = 12 * MILLI_PER_MINUTE;
+  // } else if (pParms->raceType == race_Q1_SPRINT) {
+  //   maxRaceTime = 12 * MILLI_PER_MINUTE;
+  // } else if (pParms->raceType == race_Q2_SPRINT) {
+  //   maxRaceTime = 10 * MILLI_PER_MINUTE;
+  // } else if (pParms->raceType == race_Q3_SPRINT) {
+  //   maxRaceTime = 8 * MILLI_PER_MINUTE;
+  // } else {
+  //   maxRaceTime = 0;
+  // }
 
   printf("maxRaceTime 🏃🏃 = %d\n", maxRaceTime);
 
@@ -155,32 +159,47 @@ int genTimeCore(ProgramOptions *pParms) {
       printf("INFO: the race events generation will be limited to %d minutes\n", maxRaceTime / MILLI_PER_MINUTE);
     }
   }
-    printf("START timestamp 0🏁🏁🏁\n");
-    printf("--->%i\n",pParms->speedfactor);
-    //no loop here because shoud be twiked
-    sector = getRandomTime(25000, 45000);
 
-    sector= sector/pParms->speedfactor;
 
-    printf("WAITING TO finish S1\n");
-    usleep(sector*1000);
-    totaltimestamp += sector;
 
-    sector = getRandomTime(25000, 45000);
+    if (pParms->special){}
 
-    sector= sector/pParms->speedfactor;
 
-    printf("WAITING TO finish S2\n");
-    usleep(sector*1000);
-    totaltimestamp += sector;
 
-    sector = getRandomTime(25000, 45000);
+    int numberOfTour=pParms->laps;
 
-    sector= sector/pParms->speedfactor;
 
-    printf("WAITING TO finish S3\n");
-    totaltimestamp += sector;
-    usleep(sector*1000);
+    while (1) {
+
+
+        printf("START LAP timestamp 0🏁🏁🏁\n");
+
+
+
+        for (int i=0; i<NUMBEROFSECTOR; i++) {
+
+
+            //printf("--->%i\n",pParms->speedfactor);
+            float sector = getRandomTime(25000, 45000);
+            sector= sector/pParms->speedfactor;
+
+            usleep((useconds_t)(sector * 1000000.0f));
+
+
+            printf("LAP COMPLETED %i\n",totaltimestamp);
+
+            numberOfTour--;
+
+        }
+
+
+
+
+
+    }
+
+
+
     printf("LAP COMPLETED %i\n",totaltimestamp);
 
 }
@@ -195,17 +214,7 @@ int animation(char event[]){
 
 
 const char *art[] = {
-    " .----------------.   .----------------.   .----------------. ",
-    "| .--------------. | | .--------------. | | .--------------. |",
-    "| |     ____     | | | |     ____     | | | |     ____     | |",
-    "| |   .'    `.   | | | |   .'    `.   | | | |   .'    `.   | |",
-    "| |  /  .--.  \\  | | | |  /  .--.  \\  | | | |  /  .--.  \\  | |",
-    "| |  | |    | |  | | | |  | |    | |  | | | |  | |    | |  | |",
-    "| |  \\  `--'  /  | | | |  \\  `--'  /  | | | |  \\  `--'  /  | |",
-    "| |   `.____.'   | | | |   `.____.'   | | | |   `.____.'   | |",
-    "| |              | | | |              | | | |              | |",
-    "| '--------------' | | '--------------' | | '--------------' |",
-    " '----------------'   '----------------'   '----------------' "
+
 };
 const int art_rows = sizeof art / sizeof *art;
 const int art_cols = 62;
@@ -215,91 +224,21 @@ getmaxyx(stdscr, max_y, max_x);
 int start_y = (max_y - art_rows) / 2;
 int start_x = (max_x - art_cols) / 2;
 
-for (int i = 0; i < art_rows; ++i)
-    mvprintw(start_y + i, start_x, "%s", art[i]);
-
 
 mvprintw(start_y + art_rows + 2, start_x+14, "Strating %s ..... Ready ?", event);
-refresh();
-getch();
-    clear();
 
-    const char *art2[] = {
-        " .----------------.   .----------------.   .----------------. ",
-        "| .--------------. | | .--------------. | | .--------------. |",
-        "| |     ____     | | | |     ____     | | | |     ____     | |",
-        "| |   .'    `.   | | | |   .'    `.   | | | |   .'    `.   | |",
-        "| |  /  .--.  \\  | | | |  /  .--.  \\  | | | |  /  .--.  \\  | |",
-        "| |  | |  3 | |  | | | |  | |    | |  | | | |  | |    | |  | |",
-        "| |  \\  `--'  /  | | | |  \\  `--'  /  | | | |  \\  `--'  /  | |",
-        "| |   `.____.'   | | | |   `.____.'   | | | |   `.____.'   | |",
-        "| |              | | | |              | | | |              | |",
-        "| '--------------' | | '--------------' | | '--------------' |",
-        " '----------------'   '----------------'   '----------------' "
-    };
-
-
-    for (int i = 0; i < art_rows; ++i)
-        mvprintw(start_y + i, start_x, "%s", art2[i]);
 
 
     getch();
-
-
-    clear();
-
-    const char *art3[] = {
-        " .----------------.   .----------------.   .----------------. ",
-        "| .--------------. | | .--------------. | | .--------------. |",
-        "| |     ____     | | | |     ____     | | | |     ____     | |",
-        "| |   .'    `.   | | | |   .'    `.   | | | |   .'    `.   | |",
-        "| |  /  .--.  \\  | | | |  /  .--.  \\  | | | |  /  .--.  \\  | |",
-        "| |  | |    | |  | | | |  | |  2 | |  | | | |  | |    | |  | |",
-        "| |  \\  `--'  /  | | | |  \\  `--'  /  | | | |  \\  `--'  /  | |",
-        "| |   `.____.'   | | | |   `.____.'   | | | |   `.____.'   | |",
-        "| |              | | | |              | | | |              | |",
-        "| '--------------' | | '--------------' | | '--------------' |",
-        " '----------------'   '----------------'   '----------------' "
-    };
-
-
-    for (int i = 0; i < art_rows; ++i)
-        mvprintw(start_y + i, start_x, "%s", art3[i]);
-
-
-    getch();
-
-
-    clear();
-
-    const char *art4[] = {
-        " .----------------.   .----------------.   .----------------. ",
-        "| .--------------. | | .--------------. | | .--------------. |",
-        "| |     ____     | | | |     ____     | | | |     ____     | |",
-        "| |   .'    `.   | | | |   .'    `.   | | | |   .'    `.   | |",
-        "| |  /  .--.  \\  | | | |  /  .--.  \\  | | | |  /  .--.  \\  | |",
-        "| |  | |    | |  | | | |  | |    | |  | | | |  | |  1 | |  | |",
-        "| |  \\  `--'  /  | | | |  \\  `--'  /  | | | |  \\  `--'  /  | |",
-        "| |   `.____.'   | | | |   `.____.'   | | | |   `.____.'   | |",
-        "| |              | | | |              | | | |              | |",
-        "| '--------------' | | '--------------' | | '--------------' |",
-        " '----------------'   '----------------'   '----------------' "
-    };
-
-
-    for (int i = 0; i < art_rows; ++i)
-        mvprintw(start_y + i, start_x, "%s", art4[i]);
-
-
-    getch();
-
-
-    clear();
-
 
 endwin();
 return 0;
 }
+
+/*--------------------------------------------------------------------------------------------------------------------*/
+
+
+
 
 
 
