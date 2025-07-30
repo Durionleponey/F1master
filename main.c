@@ -58,12 +58,15 @@ typedef enum enumRaceType {
 typedef struct structProgramOptions {
     int raceNumber;
     RaceType raceType;
-    int duration;
+    bool special;
     int laps;
     int sleepIndex;
     int speedfactor;
     bool verbose;
 } ProgramOptions;
+
+
+ProgramOptions options;
 
 
 
@@ -294,7 +297,8 @@ void showAllTracks(void) {
     mvprintw(2, 2, "---------------------------");
 
     for (int i = 0; i < NUMBEROFRACE; i++) {
-        mvprintw(4 + i, 2, "%10s. %10s | number of laps: %i,Sprint Laps: %d",
+        mvprintw(4 + i, 2, "%d .%10s. %10s | number of laps: %i,Sprint Laps: %d",
+                i,
                  GP_LIST[i].name,
                  GP_LIST[i].circuit,
                  GP_LIST[i].laps,
@@ -362,41 +366,76 @@ int trackSelection(void) {
 
     endwin();
 
-    switch (choice) {
-        case 0:
-            break;
-        case 1:
-            break;
-        case 2:
-            break;
-        case 3:
-            break;
-        case 4:
-            showAllTracks();
-            mainMenu();
-            break;
-        case 5:
-            showAllDrivers(currentRacers);
-            mainMenu();
-            break;
-        case 6:
-            changeDriverTheme(&currentRacers);
-            mainMenu();
-            break;
-        case 7:
-            printf("byebye!\n");
-            return 0;
+    //options.raceNumber = choice;
 
-        default:
-            printf("Invalid selection\n");
-    }
 
-    return 0;
+
+    return choice;
 }
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
+int weekendTypeSelection(void) {
+    setenv("TERM", "xterm", 1);
+
+    clear();
+
+
+
+
+
+
+    char *choices[] = {
+        "1. Classic",
+        "2. With Sprints",
+        "3. Cancel"
+    };
+
+    int highlight = 0; // position
+    int key;
+    int choice = -1;
+
+    while (1) {
+        clear();
+        printLogo();
+        mvprintw(9, 2, "Please make a selection\n"); //x,y + txt to show
+
+        for (int i = 0; i < sizeof(choices) / sizeof(choices[0]); i++) {
+            if (i == highlight) {
+                attron(A_REVERSE); // selection effect
+            }
+            mvprintw(11 + i, 4, "%s", choices[i]);//print element
+            if (i == highlight) {
+                attroff(A_REVERSE);
+            }
+        }
+
+        key = getch(); // wait for input
+
+        switch (key) {
+            case KEY_UP:
+                highlight--;
+                if (highlight < 0) highlight = sizeof(choices) / sizeof(choices[0])-1;
+                break;
+            case KEY_DOWN:
+                highlight++;
+                if (highlight > sizeof(choices) / sizeof(choices[0])-1) highlight = 0;
+                break;
+            case 10: //10=enter
+                choice = highlight;
+                break;
+        }
+
+        if (choice != -1) {break;}
+
+
+    }
+
+    endwin();
+
+    return choice;
+}
 
 
 
@@ -468,8 +507,30 @@ int mainMenu(void) {
 
     switch (choice) {
         case 0:
-            trackSelection();
-            break;
+            options.raceNumber = trackSelection();
+
+            int flag = 0;
+            while (!flag) {
+
+                switch (weekendTypeSelection()) {
+                    case 0:
+                        options.special = false;
+                        flag++;
+                        break;
+                    case 1:
+                        options.special = true;
+                        flag++;
+                        break;
+                    case 2:
+                        options.raceNumber = trackSelection();
+                        break;
+
+                }
+
+
+            }
+
+
         case 1:
             break;
         case 2:
@@ -513,7 +574,7 @@ int main(void) {
 
 
     init();
-    ProgramOptions options;
+    //ProgramOptions options;
 
 
     // typedef struct structProgramOptions {

@@ -103,7 +103,7 @@ const Driver DRIVER_TROPEZ[] = {
     {27, "Poussin bleu", "Haas F1 Team"},
     {31, "Le Curé", "BWT Alpine F1 Team"},
     {44, "Elle est forte celle là!", "Mercedes-AMG Petronas Formula One Team"},
-    {55, "T80 à tête nucléaire", "Scuderia Ferrari"},
+    {55, "Le T80 à tête nucléaire", "Scuderia Ferrari"},
     {63, "Yo Macumba", "Mercedes-AMG Petronas Formula One Team"},
     {77, "Christine Rocourt", "Alfa Romeo F1 Team Stake"},
     {81, "Chérubin", "McLaren F1 Team"}
