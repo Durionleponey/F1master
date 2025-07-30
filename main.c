@@ -26,12 +26,12 @@
 typedef struct kart {
     int kartId;
     int lapNbr;
+    int isPitting;
     char *pilote;
     char *team;
     float bestLapTime;
     float s1, s2, s3;
-    int isOut;
-    int isPitting;
+    bool isOut;
 } Kart;
 
 
@@ -56,11 +56,10 @@ typedef enum enumRaceType {
 
 
 typedef struct structProgramOptions {
-    int raceNumber;
+    int trackNumber;
     RaceType raceType;
     bool special;
     int laps;
-    int sleepIndex;
     int speedfactor;
     bool verbose;
 } ProgramOptions;
@@ -185,6 +184,124 @@ int genTimeCore(ProgramOptions *pParms) {
     printf("LAP COMPLETED %i\n",totaltimestamp);
 
 }
+
+/*--------------------------------------------------------------------------------------------------------------------*/
+
+
+int animation(char event[]){
+
+    clear();
+
+
+
+const char *art[] = {
+    " .----------------.   .----------------.   .----------------. ",
+    "| .--------------. | | .--------------. | | .--------------. |",
+    "| |     ____     | | | |     ____     | | | |     ____     | |",
+    "| |   .'    `.   | | | |   .'    `.   | | | |   .'    `.   | |",
+    "| |  /  .--.  \\  | | | |  /  .--.  \\  | | | |  /  .--.  \\  | |",
+    "| |  | |    | |  | | | |  | |    | |  | | | |  | |    | |  | |",
+    "| |  \\  `--'  /  | | | |  \\  `--'  /  | | | |  \\  `--'  /  | |",
+    "| |   `.____.'   | | | |   `.____.'   | | | |   `.____.'   | |",
+    "| |              | | | |              | | | |              | |",
+    "| '--------------' | | '--------------' | | '--------------' |",
+    " '----------------'   '----------------'   '----------------' "
+};
+const int art_rows = sizeof art / sizeof *art;
+const int art_cols = 62;
+
+int max_y, max_x;
+getmaxyx(stdscr, max_y, max_x);
+int start_y = (max_y - art_rows) / 2;
+int start_x = (max_x - art_cols) / 2;
+
+for (int i = 0; i < art_rows; ++i)
+    mvprintw(start_y + i, start_x, "%s", art[i]);
+
+
+mvprintw(start_y + art_rows + 2, start_x+14, "Strating %s ..... Ready ?", event);
+refresh();
+getch();
+    clear();
+
+    const char *art2[] = {
+        " .----------------.   .----------------.   .----------------. ",
+        "| .--------------. | | .--------------. | | .--------------. |",
+        "| |     ____     | | | |     ____     | | | |     ____     | |",
+        "| |   .'    `.   | | | |   .'    `.   | | | |   .'    `.   | |",
+        "| |  /  .--.  \\  | | | |  /  .--.  \\  | | | |  /  .--.  \\  | |",
+        "| |  | |  3 | |  | | | |  | |    | |  | | | |  | |    | |  | |",
+        "| |  \\  `--'  /  | | | |  \\  `--'  /  | | | |  \\  `--'  /  | |",
+        "| |   `.____.'   | | | |   `.____.'   | | | |   `.____.'   | |",
+        "| |              | | | |              | | | |              | |",
+        "| '--------------' | | '--------------' | | '--------------' |",
+        " '----------------'   '----------------'   '----------------' "
+    };
+
+
+    for (int i = 0; i < art_rows; ++i)
+        mvprintw(start_y + i, start_x, "%s", art2[i]);
+
+
+    getch();
+
+
+    clear();
+
+    const char *art3[] = {
+        " .----------------.   .----------------.   .----------------. ",
+        "| .--------------. | | .--------------. | | .--------------. |",
+        "| |     ____     | | | |     ____     | | | |     ____     | |",
+        "| |   .'    `.   | | | |   .'    `.   | | | |   .'    `.   | |",
+        "| |  /  .--.  \\  | | | |  /  .--.  \\  | | | |  /  .--.  \\  | |",
+        "| |  | |    | |  | | | |  | |  2 | |  | | | |  | |    | |  | |",
+        "| |  \\  `--'  /  | | | |  \\  `--'  /  | | | |  \\  `--'  /  | |",
+        "| |   `.____.'   | | | |   `.____.'   | | | |   `.____.'   | |",
+        "| |              | | | |              | | | |              | |",
+        "| '--------------' | | '--------------' | | '--------------' |",
+        " '----------------'   '----------------'   '----------------' "
+    };
+
+
+    for (int i = 0; i < art_rows; ++i)
+        mvprintw(start_y + i, start_x, "%s", art3[i]);
+
+
+    getch();
+
+
+    clear();
+
+    const char *art4[] = {
+        " .----------------.   .----------------.   .----------------. ",
+        "| .--------------. | | .--------------. | | .--------------. |",
+        "| |     ____     | | | |     ____     | | | |     ____     | |",
+        "| |   .'    `.   | | | |   .'    `.   | | | |   .'    `.   | |",
+        "| |  /  .--.  \\  | | | |  /  .--.  \\  | | | |  /  .--.  \\  | |",
+        "| |  | |    | |  | | | |  | |    | |  | | | |  | |  1 | |  | |",
+        "| |  \\  `--'  /  | | | |  \\  `--'  /  | | | |  \\  `--'  /  | |",
+        "| |   `.____.'   | | | |   `.____.'   | | | |   `.____.'   | |",
+        "| |              | | | |              | | | |              | |",
+        "| '--------------' | | '--------------' | | '--------------' |",
+        " '----------------'   '----------------'   '----------------' "
+    };
+
+
+    for (int i = 0; i < art_rows; ++i)
+        mvprintw(start_y + i, start_x, "%s", art4[i]);
+
+
+    getch();
+
+
+    clear();
+
+
+endwin();
+return 0;
+}
+
+
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
@@ -437,6 +554,79 @@ int weekendTypeSelection(void) {
     return choice;
 }
 
+/*--------------------------------------------------------------------------------------------------------------------*/
+
+
+
+int speedfactorchanger(void) {
+    setenv("TERM", "xterm", 1);
+
+    clear();
+
+
+
+
+
+
+    char *choices[] = {
+        "1. 1x speed (défault)",
+        "2. 2x speed (fast)",
+        "3. 3x speed (very fast)",
+        "4. 5x speed (lighning speed)"
+    };
+
+    int highlight = 0; // position
+    int key;
+    int choice = -1;
+
+    while (1) {
+        clear();
+        printLogo();
+        mvprintw(9, 2, "Please make a selection\n"); //x,y + txt to show
+
+        for (int i = 0; i < sizeof(choices) / sizeof(choices[0]); i++) {
+            if (i == highlight) {
+                attron(A_REVERSE); // selection effect
+            }
+            mvprintw(11 + i, 4, "%s", choices[i]);//print element
+            if (i == highlight) {
+                attroff(A_REVERSE);
+            }
+        }
+
+        key = getch(); // wait for input
+
+        switch (key) {
+            case KEY_UP:
+                highlight--;
+                if (highlight < 0) highlight = sizeof(choices) / sizeof(choices[0])-1;
+                break;
+            case KEY_DOWN:
+                highlight++;
+                if (highlight > sizeof(choices) / sizeof(choices[0])-1) highlight = 0;
+                break;
+            case 10: //10=enter
+                choice = highlight;
+                break;
+        }
+
+        if (choice != -1) {break;}
+
+
+    }
+
+    endwin();
+
+    choice++;
+
+    if (choice == 4){choice =5;}
+
+    return choice;
+}
+
+
+
+/*--------------------------------------------------------------------------------------------------------------------*/
 
 
 
@@ -460,6 +650,7 @@ int mainMenu(void) {
         "5. Show tracks",
         "6. Show current loaded racers",
         "7. [FUN] Change racers name",
+        "8. [TIME SAVING] Speed factor",
         "99. Exit"
     };
 
@@ -507,7 +698,7 @@ int mainMenu(void) {
 
     switch (choice) {
         case 0:
-            options.raceNumber = trackSelection();
+            options.trackNumber = trackSelection();
 
             int flag = 0;
             while (!flag) {
@@ -522,13 +713,15 @@ int mainMenu(void) {
                         flag++;
                         break;
                     case 2:
-                        options.raceNumber = trackSelection();
+                        options.trackNumber = trackSelection();
                         break;
 
                 }
 
 
             }
+            animation("Practice");
+
 
 
         case 1:
@@ -550,6 +743,10 @@ int mainMenu(void) {
             mainMenu();
             break;
         case 7:
+            options.speedfactor = speedfactorchanger();
+            mainMenu();
+            return 0;
+        case 8:
             printf("byebye!\n");
             return 0;
 
