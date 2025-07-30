@@ -7,6 +7,36 @@
 
 
 
+const GrandPrix GP_LIST[] = {
+    {"Bahrain GP", "Bahrain International Circuit", 57, 0, 0},
+    {"Saudi Arabian GP", "Jeddah Corniche Circuit", 50, 0, 0},
+    {"Australian GP", "Albert Park Circuit", 58, 0, 0},
+    {"Japanese GP", "Suzuka", 53, 0, 0},
+    {"Chinese GP", "Shanghai International Circuit", 56, 0, 0},
+    {"Miami GP", "Miami International Autodrome", 57, 0, 0},
+    {"Emilia-Romagna GP", "Autodromo Enzo e Dino Ferrari", 63, 1, 17},
+    {"Monaco GP", "Circuit de Monaco", 78, 0, 0},
+    {"Canadian GP", "Circuit Gilles Villeneuve", 70, 0, 0},
+    {"Spanish GP", "Circuit de Barcelona-Catalunya", 66, 0, 0},
+    {"Austrian GP", "Red Bull Ring", 71, 1, 23},
+    {"British GP", "Silverstone", 52, 0, 0},
+    {"Hungarian GP", "Hungaroring", 70, 0, 0},
+    {"Belgian GP", "Spa-Francorchamps", 44, 1, 15},
+    {"Dutch GP", "Zandvoort", 72, 0, 0},
+    {"Italian GP", "Monza", 53, 0, 0},
+    {"Azerbaijan GP", "Baku City Circuit", 51, 1, 17},
+    {"Singapore GP", "Marina Bay", 62, 0, 0},
+    {"United States GP", "Circuit of the Americas", 56, 1, 19},
+    {"Mexico GP", "Autodromo Hermanos Rodríguez", 71, 0, 0},
+    {"São Paulo GP", "Interlagos", 71, 1, 24},
+    {"Las Vegas GP", "Las Vegas Strip Circuit", 50, 0, 0},
+    {"Qatar GP", "Losail International Circuit", 57, 0, 0},
+    {"Abu Dhabi GP", "Yas Marina Circuit", 58, 0, 0}
+};
+
+
+
+
 const Driver DRIVER_LIST[] = {
     {1, "Max Verstappen", "Red Bull Racing"},
     {2, "Logan Sargeant", "Williams Racing"},
@@ -63,19 +93,19 @@ const Driver DRIVER_TROPEZ[] = {
     {4, "Tricard", "McLaren F1 Team"},
     {10, "Merlot", "BWT Alpine F1 Team"},
     {11, "Beaupied", "Red Bull Racing"},
-    {14, "Bonne Soeur 1", "Aston Martin Aramco Cognizant F1 Team"},
-    {16, "Madame Gerber", "Scuderia Ferrari"},
-    {18, "Bonne Soeur 2", "Aston Martin Aramco Cognizant F1 Team"},
+    {14, "Berlicot", "Aston Martin Aramco Cognizant F1 Team"},
+    {16, "Adjudante Gerber", "Scuderia Ferrari"},
+    {18, "Le voleur de poule", "Aston Martin Aramco Cognizant F1 Team"},
     {20, "Soeur Clotilde", "Haas F1 Team"},
-    {22, "Nicole Cruchot", "Scuderia AlphaTauri"},
+    {22, "Nicole", "Scuderia AlphaTauri"},
     {23, "Le Colonel", "Williams Racing"},
-    {24, "Bonne Soeur 3", "Scuderia Ferrari"},
-    {27, "Bonne Soeur 4", "Haas F1 Team"},
+    {24, "Josépha Cruchot", "Scuderia Ferrari"},
+    {27, "Poussin bleu", "Haas F1 Team"},
     {31, "Le Curé", "BWT Alpine F1 Team"},
-    {44, "Bonne Soeur 5", "Mercedes-AMG Petronas Formula One Team"},
-    {55, "Bonne Soeur 6", "Scuderia Ferrari"},
+    {44, "Elle est forte celle là!", "Mercedes-AMG Petronas Formula One Team"},
+    {55, "T80 à tête nucléaire", "Scuderia Ferrari"},
     {63, "Yo Macumba", "Mercedes-AMG Petronas Formula One Team"},
-    {77, "Bonne Soeur 7", "Alfa Romeo F1 Team Stake"},
-    {81, "Bonne Soeur 8", "McLaren F1 Team"}
+    {77, "Christine Rocourt", "Alfa Romeo F1 Team Stake"},
+    {81, "Chérubin", "McLaren F1 Team"}
 };
 

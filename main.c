@@ -284,6 +284,26 @@ void showAllDrivers(const Driver* drivers) {
 }
 
 
+/*--------------------------------------------------------------------------------------------------------------------*/
+
+void showAllTracks(void) {
+    clear();
+    mvprintw(1, 2, "List of tracks :\n");
+    mvprintw(2, 2, "---------------------------");
+
+    for (int i = 0; i < 24; i++) {
+        mvprintw(4 + i, 2, "%2s. %-20s  |  %-30i",
+                 GP_LIST[i].name,
+                 GP_LIST[i].circuit,
+                 GP_LIST[i].laps);
+    }
+
+
+    refresh();
+    getch();
+}
+
+
 
 
 int mainMenu(void) {
@@ -362,6 +382,8 @@ int mainMenu(void) {
         case 3:
             break;
         case 4:
+            showAllTracks();
+            mainMenu();
             break;
         case 5:
             showAllDrivers(currentRacers);
@@ -412,19 +434,16 @@ int main(void) {
 
     options.raceType =1;
     options.verbose =1;
-    genTimeCore(&options);
+    //genTimeCore(&options);
     options.raceType =0;
 
 
 
-    genTimeCore(&options);
-
-    while (1) {
+    //genTimeCore(&options);
 
 
-    }
 
-    //mainMenu();
+    mainMenu();
 
 
 
