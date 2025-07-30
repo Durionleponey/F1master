@@ -16,6 +16,8 @@
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 #define NUMBEROFKART 20
+#define NUMBEROFRACE 24
+
 #define MILLI_PER_MINUTE 1000
 
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -291,11 +293,12 @@ void showAllTracks(void) {
     mvprintw(1, 2, "List of tracks :\n");
     mvprintw(2, 2, "---------------------------");
 
-    for (int i = 0; i < 24; i++) {
-        mvprintw(4 + i, 2, "%2s. %-20s  |  %-30i",
+    for (int i = 0; i < NUMBEROFRACE; i++) {
+        mvprintw(4 + i, 2, "%10s. %10s | number of laps: %i,Sprint Laps: %d",
                  GP_LIST[i].name,
                  GP_LIST[i].circuit,
-                 GP_LIST[i].laps);
+                 GP_LIST[i].laps,
+                 GP_LIST[i].sprintLaps);
     }
 
 
@@ -303,12 +306,103 @@ void showAllTracks(void) {
     getch();
 }
 
+/*--------------------------------------------------------------------------------------------------------------------*/
+
+
+
+int trackSelection(void) {
+    setenv("TERM", "xterm", 1);
+
+    clear();
+
+
+
+
+
+    int highlight = 0; // position
+    int key;
+    int choice = -1;
+
+
+    while (1) {
+        clear();
+        //printLogo();
+        mvprintw(1, 2, "Please chose the track for the week end\n"); //x,y + txt to show
+
+        for (int i = 0; i < NUMBEROFRACE; i++) {
+            if (i == highlight) {
+                attron(A_REVERSE);
+            }
+            mvprintw(3 + i, 4, "%s10 | %s", GP_LIST[i].name, GP_LIST[i].circuit);
+            if (i == highlight) {
+                attroff(A_REVERSE);
+            }
+        }
+
+        key = getch(); // wait for input
+
+        switch (key) {
+            case KEY_UP:
+                highlight--;
+                if (highlight < 0) highlight = NUMBEROFRACE -1;
+                break;
+            case KEY_DOWN:
+                highlight++;
+                if (highlight > NUMBEROFRACE-1) highlight = 0;
+                break;
+            case 10: //10=enter
+                choice = highlight;
+                break;
+        }
+
+        if (choice != -1) {break;}
+
+
+    }
+
+    endwin();
+
+    switch (choice) {
+        case 0:
+            break;
+        case 1:
+            break;
+        case 2:
+            break;
+        case 3:
+            break;
+        case 4:
+            showAllTracks();
+            mainMenu();
+            break;
+        case 5:
+            showAllDrivers(currentRacers);
+            mainMenu();
+            break;
+        case 6:
+            changeDriverTheme(&currentRacers);
+            mainMenu();
+            break;
+        case 7:
+            printf("byebye!\n");
+            return 0;
+
+        default:
+            printf("Invalid selection\n");
+    }
+
+    return 0;
+}
+
+
+/*--------------------------------------------------------------------------------------------------------------------*/
+
+
 
 
 
 int mainMenu(void) {
     setenv("TERM", "xterm", 1);
-
 
     initscr(); // init
     printLogo();
@@ -374,6 +468,7 @@ int mainMenu(void) {
 
     switch (choice) {
         case 0:
+            trackSelection();
             break;
         case 1:
             break;
