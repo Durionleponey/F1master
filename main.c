@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "include/util.h"
 
@@ -32,18 +33,6 @@ typedef struct kart {
 } Kart;
 
 
-typedef enum enumEventType {
-    event_ERROR,
-    event_START,
-    event_S1,
-    event_S2,
-    event_S3,
-    event_PIT_START,
-    event_PIT_END,
-    event_OUT,
-    event_END
-  } EventType;
-
 
 
 typedef enum enumRaceType {
@@ -70,19 +59,11 @@ typedef struct structProgramOptions {
     int duration;
     int laps;
     int sleepIndex;
+    int speedfactor;
     bool verbose;
 } ProgramOptions;
 
 
-typedef struct structEventRace {
-    int id;
-    int number;
-    RaceType type;
-    int car;
-    int lap;
-    EventType event;
-    uint32_t timestamp; // time in milliseconds
-} EventRace;
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
@@ -132,6 +113,8 @@ int getRandomTime(int minTime, int maxTime) {
 int genTimeCore(ProgramOptions *pParms) {
   uint32_t maxRaceTime;
   //non sign int
+  int totaltimestamp =0;
+  int sector =0;
 
 
 
@@ -169,11 +152,32 @@ int genTimeCore(ProgramOptions *pParms) {
     }
   }
     printf("START timestamp 0🏁🏁🏁\n");
+    printf("--->%i\n",pParms->speedfactor);
+    //no loop here because shoud be twiked
+    sector = getRandomTime(25000, 45000);
 
-    int result = getRandomTime(25000, 45000);
+    sector= sector/pParms->speedfactor;
 
-    printf("------------>%i\n",result);
+    printf("WAITING TO finish S1\n");
+    usleep(sector*1000);
+    totaltimestamp += sector;
 
+    sector = getRandomTime(25000, 45000);
+
+    sector= sector/pParms->speedfactor;
+
+    printf("WAITING TO finish S2\n");
+    usleep(sector*1000);
+    totaltimestamp += sector;
+
+    sector = getRandomTime(25000, 45000);
+
+    sector= sector/pParms->speedfactor;
+
+    printf("WAITING TO finish S3\n");
+    totaltimestamp += sector;
+    usleep(sector*1000);
+    printf("LAP COMPLETED %i\n",totaltimestamp);
 
 }
 
@@ -395,11 +399,6 @@ int main(void) {
     ProgramOptions options;
 
 
-
-
-
-
-
     // typedef struct structProgramOptions {
     //     int raceNumber;
     //     RaceType raceType;
@@ -408,10 +407,16 @@ int main(void) {
     //     int sleepIndex;
     //     bool verbose;
     // } ProgramOptions;
+    options.speedfactor =5;
+
+
     options.raceType =1;
     options.verbose =1;
     genTimeCore(&options);
     options.raceType =0;
+
+
+
     genTimeCore(&options);
 
     while (1) {
