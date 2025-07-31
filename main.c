@@ -60,6 +60,7 @@ typedef enum enumRaceType {
 
 
 typedef struct structProgramOptions {
+    char gpname[40];
     int trackNumber;
     RaceType raceType;
     bool special;
@@ -68,8 +69,8 @@ typedef struct structProgramOptions {
     bool verbose;
 } ProgramOptions;
 
-
 ProgramOptions options;
+
 
 
 
@@ -225,7 +226,7 @@ int start_y = (max_y - art_rows) / 2;
 int start_x = (max_x - art_cols) / 2;
 
 
-mvprintw(start_y + art_rows + 2, start_x+14, "Strating %s ..... Ready ?", event);
+mvprintw(start_y + art_rows + 2, start_x+14, "Strating %s ..... Ready ? [Touch a key to continue] ", event);
 
 
 
@@ -429,10 +430,31 @@ int trackSelection(void) {
     return choice;
 }
 
+/*--------------------------------------------------------------------------------------------------------------------*/
+
+
+int setGPname(void){
+
+
+
+    printLogo2();
+
+    printf("Please choose the GP name: [40 char max]\n");
+
+    printf("\n>>");
+    scanf("%40s", options.gpname);
+    return 0;
+
+
+
+
+
+}
+
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
-int weekendTypeSelection(void) {
+bool weekendTypeSelection(void) {
     setenv("TERM", "xterm", 1);
 
     clear();
@@ -445,7 +467,6 @@ int weekendTypeSelection(void) {
     char *choices[] = {
         "1. Classic",
         "2. With Sprints",
-        "3. Cancel"
     };
 
     int highlight = 0; // position
@@ -455,7 +476,7 @@ int weekendTypeSelection(void) {
     while (1) {
         clear();
         printLogo();
-        mvprintw(9, 2, "Please make a selection\n"); //x,y + txt to show
+        mvprintw(9, 2, "Please select the type of WEEK END\n"); //x,y + txt to show
 
         for (int i = 0; i < sizeof(choices) / sizeof(choices[0]); i++) {
             if (i == highlight) {
@@ -486,6 +507,14 @@ int weekendTypeSelection(void) {
         if (choice != -1) {break;}
 
 
+    }
+
+    bool a;
+
+    if (choice){
+    a = true;
+    }else{
+    a =false;
     }
 
     endwin();
@@ -637,28 +666,10 @@ int mainMenu(void) {
 
     switch (choice) {
         case 0:
+            setGPname();
+            options.special = weekendTypeSelection();
             options.trackNumber = trackSelection();
-
-            int flag = 0;
-            while (!flag) {
-
-                switch (weekendTypeSelection()) {
-                    case 0:
-                        options.special = false;
-                        flag++;
-                        break;
-                    case 1:
-                        options.special = true;
-                        flag++;
-                        break;
-                    case 2:
-                        options.trackNumber = trackSelection();
-                        break;
-
-                }
-
-
-            }
+            options.speedfactor = speedfactorchanger();
             animation("Practice");
 
 
