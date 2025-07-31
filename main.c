@@ -72,6 +72,22 @@ typedef struct structProgramOptions {
 ProgramOptions options;
 
 
+void printProgramOptions(const ProgramOptions *opts) {
+    printf("Grand Prix name: %s\n", opts->gpname);
+    printf("Track number: %d\n", opts->trackNumber);
+    printf("Race type: %s\n", opts->raceType == true ? "SPRINT" : "ENDURANCE");
+    printf("Special: %s\n", opts->special ? "Yes" : "No");
+    printf("Laps: %d\n", opts->laps);
+    printf("Speed factor: %d\n", opts->speedfactor);
+    printf("Verbose: %s\n", opts->verbose ? "Enabled" : "Disabled");
+}
+
+
+
+
+
+/*--------------------------------------------------------------------------------------------------------------------*/
+
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -126,6 +142,12 @@ int genTimeCore(ProgramOptions *pParms) {
   int sector =0;
 
 
+    printProgramOptions(&options);
+
+
+
+
+
 
   //
   // if (pParms->raceType == race_P1 || pParms->raceType == race_P2 || pParms->raceType == race_P3) {//si c'est practice
@@ -177,17 +199,24 @@ int genTimeCore(ProgramOptions *pParms) {
 
 
 
+
         for (int i=0; i<NUMBEROFSECTOR; i++) {
+
+
+            printf("START SECTOR %i🏁🏁🏁\n",i);
 
 
             //printf("--->%i\n",pParms->speedfactor);
             float sector = getRandomTime(25000, 45000);
             sector= sector/pParms->speedfactor;
 
-            usleep((useconds_t)(sector * 1000000.0f));
+            printf("seconde ---> %f\n",(sector));
+
+            usleep(sector*1000);
 
 
-            printf("LAP COMPLETED %i\n",totaltimestamp);
+
+            printf("SECTOR COMPLETED %i\n",totaltimestamp);
 
             numberOfTour--;
 
@@ -240,16 +269,9 @@ return 0;
 
 
 
-
-
-
-/*--------------------------------------------------------------------------------------------------------------------*/
-
-
 void changeDriverTheme(Driver const **target) {
     clear();
-    mvprintw(1, 2, "Select a theme for the pilots :\n");
-    mvprintw(2, 2, "---------------------------");
+
 
 
 
@@ -266,7 +288,7 @@ void changeDriverTheme(Driver const **target) {
     while (1) {
         clear();
         printLogo();
-        mvprintw(9, 2, "Please make a selection\n"); //x,y + txt to show
+        mvprintw(9, 2, "Please select your pilotes\n"); //x,y + txt to show
 
         for (int i = 0; i < sizeof(choices) / sizeof(choices[0]); i++) {
             if (i == highlight) {
@@ -298,13 +320,15 @@ void changeDriverTheme(Driver const **target) {
 
 
     }
+    refresh();
 
     endwin();
-
-
-
     refresh();
-    getch();
+
+
+
+
+
 
 
 
@@ -425,6 +449,8 @@ int trackSelection(void) {
 
     //options.raceNumber = choice;
 
+    options.laps = GP_LIST[choice].laps;
+
 
 
     return choice;
@@ -540,7 +566,7 @@ int speedfactorchanger(void) {
         "1. 1x speed (défault)",
         "2. 2x speed (fast)",
         "3. 3x speed (very fast)",
-        "4. 5x speed (lighning speed)"
+        "4. 5x speed (lighning speed)",
     };
 
     int highlight = 0; // position
@@ -666,11 +692,16 @@ int mainMenu(void) {
 
     switch (choice) {
         case 0:
-            setGPname();
+            //setGPname();
             options.special = weekendTypeSelection();
             options.trackNumber = trackSelection();
             options.speedfactor = speedfactorchanger();
+            //changeDriverTheme(&currentRacers);
             animation("Practice");
+
+            options.speedfactor = 10;
+
+            genTimeCore(&options);
 
 
 
