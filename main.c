@@ -26,10 +26,9 @@
 
 typedef struct kart {
     int kartId;
+    int piloteNumber;
     int lapNbr;
     int isPitting;
-    char *pilote;
-    char *team;
     float bestLapTime;
     float s1, s2, s3;
     bool isOut;
@@ -108,18 +107,24 @@ int init(void) {
     Kart kars[20];
 
     for (int i = 0; i < 20; i++) {
-        kars[i].kartId = DRIVER_LIST[i].number;
-        kars[i].pilote = strdup(DRIVER_LIST[i].name);
-        kars[i].team = strdup(DRIVER_LIST[i].team);
-
-
         kars[i].lapNbr = 0;
         kars[i].bestLapTime = 9999;
-        kars[i].isOut = 0;
+        kars[i].isOut = false;
         kars[i].isPitting = 0;
+        kars[i].s1 =0;
+        kars[i].s2 =0;
+        kars[i].s3 =0;
     }
 
-
+    // typedef struct kart {
+    //     int kartId;
+    //     int piloteNumber;
+    //     int lapNbr;
+    //     int isPitting;
+    //     float bestLapTime;
+    //     float s1, s2, s3;
+    //     bool isOut;
+    // } Kart;
 
 
 
@@ -191,16 +196,17 @@ int genTimeCore(ProgramOptions *pParms) {
 
     int numberOfTour=pParms->laps;
 
+    printf("number of lape that will be done --> %i\n\n\n",numberOfTour);
+    karts[0].lapNbr = numberOfTour;
 
-    while (1) {
+
+    while (numberOfTour) {
 
 
         printf("START LAP timestamp 0🏁🏁🏁\n");
 
 
-
-
-        for (int i=0; i<NUMBEROFSECTOR; i++) {
+        for (int i=1; i<NUMBEROFSECTOR+1; i++) {
 
 
             printf("START SECTOR %i🏁🏁🏁\n",i);
@@ -214,23 +220,35 @@ int genTimeCore(ProgramOptions *pParms) {
 
             usleep(sector*1000);
 
+            switch (i) {
+                case 1:
+                    karts[0].s1 = sector;
+                    break;
+                case 2:
+                    karts[0].s2 = sector;
+                    break;
+                case 3:
+                    karts[0].s3 = sector;
+                    break;
 
 
-            printf("SECTOR COMPLETED %i\n",totaltimestamp);
+            }
 
-            numberOfTour--;
+            karts[0].s1 = sector;
 
         }
 
 
 
-
+        printf("🥳🥳LAP COMPLETED ! left--> %i\n\n\n",numberOfTour);
+        numberOfTour--;
+        karts[0].lapNbr = numberOfTour;
 
     }
 
+    printf("race complete!");
 
 
-    printf("LAP COMPLETED %i\n",totaltimestamp);
 
 }
 
@@ -619,10 +637,62 @@ int speedfactorchanger(void) {
 }
 
 
-
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 
+void displayPractice(void) {
+
+    system("clear");
+
+
+
+
+}
+
+
+
+/*--------------------------------------------------------------------------------------------------------------------*/
+
+int lauchTheEvent(void) {
+
+    printf("helllo\n");
+    //while (1) {}
+
+    int fd[2];
+    pipe(fd);
+
+
+
+    pid_t pid = fork();
+
+
+    if (pid == 0) {
+        printf("kidsss\n");
+        close(fd[0]);
+        char message[100] = "coucou lol";
+        //sleep(3);
+        write(fd[1], message, strlen(message)+1);
+        close(fd[1]);
+
+        //genTimeCore(&options);
+    }else {
+        close(fd[1]);
+        printf("parent\n");
+        char buf[100];
+        read(fd[0], buf, sizeof(buf));
+        printf("%s\n", buf);
+        //displayPractice();
+        close(fd[0]);
+    }
+
+    while (1){};
+
+    genTimeCore(&options);
+
+}
+
+
+/*--------------------------------------------------------------------------------------------------------------------*/
 
 int mainMenu(void) {
     setenv("TERM", "xterm", 1);
@@ -701,7 +771,9 @@ int mainMenu(void) {
 
             options.speedfactor = 10;
 
-            genTimeCore(&options);
+            lauchTheEvent();
+
+
 
 
 
