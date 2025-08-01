@@ -140,20 +140,13 @@ int getRandomTime(int minTime, int maxTime) {
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
-int genTimeCore(ProgramOptions *pParms) {
+int genTimeCore(ProgramOptions *pParms, int *fd) {
   uint32_t maxRaceTime;
   //non sign int
   int totaltimestamp =0;
   int sector =0;
 
-
     printProgramOptions(&options);
-
-
-
-
-
-
   //
   // if (pParms->raceType == race_P1 || pParms->raceType == race_P2 || pParms->raceType == race_P3) {//si c'est practice
   //   maxRaceTime = 60 * MILLI_PER_MINUTE;//1000
@@ -189,6 +182,14 @@ int genTimeCore(ProgramOptions *pParms) {
   }
 
 
+    // karts[0].s1=30;
+    // karts[0].s2=60;
+    // karts[0].s3=90;
+    //sleep(3);
+
+
+
+
 
     if (pParms->special){}
 
@@ -197,10 +198,15 @@ int genTimeCore(ProgramOptions *pParms) {
     int numberOfTour=pParms->laps;
 
     printf("number of lape that will be done --> %i\n\n\n",numberOfTour);
-    karts[0].lapNbr = numberOfTour;
 
 
     while (numberOfTour) {
+
+        karts[0].s1 = 0;
+        karts[0].s2 = 0;
+        karts[0].s3 = 0;
+        karts[0].lapNbr = numberOfTour;
+        write(fd[1], &karts[0], sizeof(karts[0]));
 
 
         printf("START LAP timestamp 0🏁🏁🏁\n");
@@ -214,27 +220,34 @@ int genTimeCore(ProgramOptions *pParms) {
 
             //printf("--->%i\n",pParms->speedfactor);
             float sector = getRandomTime(25000, 45000);
+            float realtime = sector;
             sector= sector/pParms->speedfactor;
 
-            printf("seconde ---> %f\n",(sector));
+            //printf("seconde ---> %f\n",(sector));
 
             usleep(sector*1000);
 
             switch (i) {
                 case 1:
-                    karts[0].s1 = sector;
+                    printf("seconde s1 ---> %f\n",(realtime));
+                    karts[0].s1 = realtime;
+                    write(fd[1], &karts[0], sizeof(karts[0]));
                     break;
                 case 2:
-                    karts[0].s2 = sector;
+                    printf("seconde s2 ---> %f\n",(realtime));
+                    karts[0].s2 = realtime;
+                    write(fd[1], &karts[0], sizeof(karts[0]));
                     break;
                 case 3:
-                    karts[0].s3 = sector;
+                    printf("seconde s3---> %f\n",(realtime));
+                    karts[0].s3 = realtime;
+                    write(fd[1], &karts[0], sizeof(karts[0]));
                     break;
 
 
             }
 
-            karts[0].s1 = sector;
+
 
         }
 
@@ -242,11 +255,11 @@ int genTimeCore(ProgramOptions *pParms) {
 
         printf("🥳🥳LAP COMPLETED ! left--> %i\n\n\n",numberOfTour);
         numberOfTour--;
-        karts[0].lapNbr = numberOfTour;
 
     }
 
     printf("race complete!");
+    close(fd[1]);
 
 
 
@@ -644,6 +657,9 @@ void displayPractice(void) {
 
     system("clear");
 
+    printf("%s|S1:%.3f,S2:%.3f,S3:%.3f|laps:%i\n",&*currentRacers[0].name,karts[0].s1 / 1000.0, karts[0].s2 / 1000.0,karts[0].s3 / 1000.0, karts[0].lapNbr);
+
+
 
 
 
@@ -669,25 +685,36 @@ int lauchTheEvent(void) {
     if (pid == 0) {
         printf("kidsss\n");
         close(fd[0]);
-        char message[100] = "coucou lol";
-        //sleep(3);
-        write(fd[1], message, strlen(message)+1);
-        close(fd[1]);
+        //char message[100] = "coucou lol";
+        // karts[0].s1=30;
+        // karts[0].s2=60;
+        // karts[0].s3=90;
+        // //sleep(3);
+        // write(fd[1], &karts[0], sizeof(karts[0]));
+        // close(fd[1]);
 
-        //genTimeCore(&options);
+        genTimeCore(&options,&fd);
     }else {
         close(fd[1]);
         printf("parent\n");
-        char buf[100];
-        read(fd[0], buf, sizeof(buf));
-        printf("%s\n", buf);
+
+        printf("%f\n", karts[0].s1);
+        printf("%f\n", karts[0].s2);
         //displayPractice();
+
+        while (1) {
+            read(fd[0], &karts[0], sizeof(karts[0]));
+            //usleep(5000);
+            displayPractice();
+        };
+
+
         close(fd[0]);
     }
 
-    while (1){};
 
-    genTimeCore(&options);
+
+    //genTimeCore(&options);
 
 }
 
@@ -769,7 +796,7 @@ int mainMenu(void) {
             //changeDriverTheme(&currentRacers);
             animation("Practice");
 
-            options.speedfactor = 10;
+            options.speedfactor = 5;
 
             lauchTheEvent();
 
