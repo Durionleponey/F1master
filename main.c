@@ -202,16 +202,15 @@ int genTimeCore(ProgramOptions *pParms, int fd[2], int id) {
 
 
 
-    int numberOfTour=pParms->laps;
+    karts[id].lapNbr=pParms->laps;
 
     //printf("number of lap that will be done --> %i\n\n\n",numberOfTour);
 
 
-    while (numberOfTour) {
+    while (karts[id].lapNbr) {
 
         karts[id].s1 = 0;
         karts[id].s2 = 0;
-        karts[id].lapNbr = numberOfTour;
         write(fd[1], &karts[id], sizeof(karts[id]));
 
 
@@ -261,7 +260,7 @@ int genTimeCore(ProgramOptions *pParms, int fd[2], int id) {
 
 
         //printf("🥳🥳LAP COMPLETED ! left--> %i\n\n\n",numberOfTour);
-        numberOfTour--;
+        karts[id].lapNbr--;
 
     }
 
@@ -660,26 +659,24 @@ int speedfactorchanger(void) {
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 
-void displayPractice(void) {
+void displayPractice(void)
+{
+    printf("\033[H\033[J");
 
-    system("clear");
+    printf("%-3s | %-20s | %-11s | %-11s | %-11s | %-5s | %-35s\n",
+           "#", "Pilote", "S1", "S2", "S3", "Laps", "Équipe");
+    puts("-------------------------------------------------------------------------------------------------------------");
 
-    for (int i =0; i<NUMBEROFKART;i++) {
-
-
-
-        printf("%i|%s|%s| S1: %.3f\", S2: %.3f\", S3: %.3f\"|laps:%i\n",currentRacers[i].number,currentRacers[i].name,currentRacers[i].team,karts[i].s1 / 1000.0, karts[i].s2 / 1000.0,karts[i].s3 / 1000.0, karts[i].lapNbr);
-
-
-
+    for (int i = 0; i < NUMBEROFKART; ++i) {
+        printf("%-3d | %-20s | %8.3f\" | %8.3f\" | %8.3f\" | %-5d | %-35s\n",
+               currentRacers[i].number,
+               currentRacers[i].name,
+               karts[i].s1 / 1000.0,
+               karts[i].s2 / 1000.0,
+               karts[i].s3 / 1000.0,
+               karts[i].lapNbr,
+               currentRacers[i].team);
     }
-
-
-
-
-
-
-
 }
 
 
@@ -717,6 +714,8 @@ int lauchTheEvent(void) {
         //parent
 
         close(fd[i][1]);
+
+
     }
 
 
