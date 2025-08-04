@@ -35,6 +35,8 @@ typedef struct kart {
     int isPitting;
     float bestLapTime;
     float s1, s2, s3;
+    float bs1, bs2, bs3;
+    int stepDone;
     bool isOut;
 } Kart;
 
@@ -121,6 +123,10 @@ int init(void) {
         kars[i].s1 =0;
         kars[i].s2 =0;
         kars[i].s3 =0;
+        kars[i].bs1 =0;
+        kars[i].bs2 =0;
+        kars[i].bs3 =0;
+        kars[i].stepDone = 0;
 
         kars[i].piloteNumber = currentRacers[i].number;
 
@@ -241,16 +247,19 @@ int genTimeCore(ProgramOptions *pParms, int fd[2], int id) {
                     //printf("seconde s1 ---> %f\n",(realtime));
                     karts[id].s1 = realtime;
                     karts[id].s3 = 0;
+                    karts[id].stepDone++;
                     write(fd[1], &karts[id], sizeof(karts[id]));
                     break;
                 case 2:
                     //printf("seconde s2 ---> %f\n",(realtime));
                     karts[id].s2 = realtime;
+                    karts[id].stepDone++;
                     write(fd[1], &karts[id], sizeof(karts[id]));
                     break;
                 case 3:
                     //printf("seconde s3---> %f\n",(realtime));
                     karts[id].s3 = realtime;
+                    karts[id].stepDone++;
                     write(fd[1], &karts[id], sizeof(karts[id]));
                     break;
 
@@ -663,23 +672,42 @@ int speedfactorchanger(void) {
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 
+static int cmp_step_done(const void *a, const void *b){
+    const int ia = *(const int *)a;
+    const int ib = *(const int *)b;
+
+    return karts[ib].stepDone - karts[ia].stepDone;
+}
+
+
 void displayPractice(void)
 {
+
+    int ii;
+    int order[NUMBEROFKART];
+    for (int i = 0; i < NUMBEROFKART; ++i) order[i] = i;
+
+
+    qsort(order, NUMBEROFKART, sizeof(int), cmp_step_done);
+
+
     printf("\033[H\033[J");
 
-    printf("%-3s | %-20s | %-11s | %-11s | %-11s | %-5s | %-5s\n",
-           "#", "Pilote", "S1", "S2", "S3", "Laps", "Équipe");
+    printf("%-3s |%-3s | %-20s | %-11s | %-11s | %-11s | %-5s | %-5s\n",
+           "#", "Num", "Pilote", "S1", "S2", "S3", "Laps", "Équipe");
     puts("-------------------------------------------------------------------------------------------------------------");
 
     for (int i = 0; i < NUMBEROFKART; ++i) {
-        printf("%-3d | %-20s | %8.3f\" | %8.3f\" | %8.3f\" | %-5d | %-35s\n",
-               currentRacers[i].number,
-               currentRacers[i].name,
-               karts[i].s1 / 1000.0,
-               karts[i].s2 / 1000.0,
-               karts[i].s3 / 1000.0,
-               karts[i].lapNbr,
-               currentRacers[i].team);
+        ii = order[i];
+        printf("%-3d | %-3d | %-20s | %8.3f\" | %8.3f\" | %8.3f\" | %-5d | %-35s\n",
+            i+1,
+               currentRacers[ii].number,
+               currentRacers[ii].name,
+               karts[ii].s1 / 1000.0,
+               karts[ii].s2 / 1000.0,
+               karts[ii].s3 / 1000.0,
+               karts[ii].lapNbr,
+               currentRacers[ii].team);
     }
 }
 
@@ -734,6 +762,7 @@ int lauchTheEvent(void) {
 
     //displayPractice();
 
+
     struct pollfd p[NUMBEROFKART];
     for (int i = 0; i < NUMBEROFKART; ++i) {
         p[i].fd     = fd[i][0];
@@ -743,7 +772,7 @@ int lauchTheEvent(void) {
 
     while (1) {
 
-        usleep(2000);
+        sleep(1);
 
 
         int ready = poll(p, NUMBEROFKART, -1);
