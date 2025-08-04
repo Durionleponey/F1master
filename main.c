@@ -147,7 +147,7 @@ int getRandomTime(int minTime, int maxTime) {
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
-int genTimeCore(ProgramOptions *pParms, int *fd) {
+int genTimeCore(ProgramOptions *pParms, int fd[2], int id) {
   uint32_t maxRaceTime;
   //non sign int
   int totaltimestamp =0;
@@ -173,7 +173,7 @@ int genTimeCore(ProgramOptions *pParms, int *fd) {
   //   maxRaceTime = 0;
   // }
 
-  printf("maxRaceTime 🏃🏃 = %d\n", maxRaceTime);
+  //printf("maxRaceTime 🏃🏃 = %d\n", maxRaceTime);
 
   if (!maxRaceTime) {
     printf("no max run time, the event is a GP i guess!\n");
@@ -204,24 +204,24 @@ int genTimeCore(ProgramOptions *pParms, int *fd) {
 
     int numberOfTour=pParms->laps;
 
-    printf("number of lap that will be done --> %i\n\n\n",numberOfTour);
+    //printf("number of lap that will be done --> %i\n\n\n",numberOfTour);
 
 
     while (numberOfTour) {
 
-        karts[0].s1 = 0;
-        karts[0].s2 = 0;
-        karts[0].lapNbr = numberOfTour;
-        write(fd[1], &karts[0], sizeof(karts[0]));
+        karts[id].s1 = 0;
+        karts[id].s2 = 0;
+        karts[id].lapNbr = numberOfTour;
+        write(fd[1], &karts[id], sizeof(karts[id]));
 
 
-        printf("START LAP timestamp 0🏁🏁🏁\n");
+        //printf("START LAP timestamp 0🏁🏁🏁\n");
 
 
         for (int i=1; i<NUMBEROFSECTOR+1; i++) {
 
 
-            printf("START SECTOR %i🏁🏁🏁\n",i);
+            //printf("START SECTOR %i🏁🏁🏁\n",i);
 
 
             //printf("--->%i\n",pParms->speedfactor);
@@ -235,20 +235,20 @@ int genTimeCore(ProgramOptions *pParms, int *fd) {
 
             switch (i) {
                 case 1:
-                    printf("seconde s1 ---> %f\n",(realtime));
-                    karts[0].s1 = realtime;
-                    karts[0].s3 = 0;
-                    write(fd[1], &karts[0], sizeof(karts[0]));
+                    //printf("seconde s1 ---> %f\n",(realtime));
+                    karts[id].s1 = realtime;
+                    karts[id].s3 = 0;
+                    write(fd[1], &karts[id], sizeof(karts[id]));
                     break;
                 case 2:
-                    printf("seconde s2 ---> %f\n",(realtime));
-                    karts[0].s2 = realtime;
-                    write(fd[1], &karts[0], sizeof(karts[0]));
+                    //printf("seconde s2 ---> %f\n",(realtime));
+                    karts[id].s2 = realtime;
+                    write(fd[1], &karts[id], sizeof(karts[id]));
                     break;
                 case 3:
-                    printf("seconde s3---> %f\n",(realtime));
-                    karts[0].s3 = realtime;
-                    write(fd[1], &karts[0], sizeof(karts[0]));
+                    //printf("seconde s3---> %f\n",(realtime));
+                    karts[id].s3 = realtime;
+                    write(fd[1], &karts[id], sizeof(karts[id]));
                     break;
 
 
@@ -260,12 +260,12 @@ int genTimeCore(ProgramOptions *pParms, int *fd) {
 
 
 
-        printf("🥳🥳LAP COMPLETED ! left--> %i\n\n\n",numberOfTour);
+        //printf("🥳🥳LAP COMPLETED ! left--> %i\n\n\n",numberOfTour);
         numberOfTour--;
 
     }
 
-    printf("race complete!");
+    //printf("race complete!");
     close(fd[1]);
 
 
@@ -664,7 +664,16 @@ void displayPractice(void) {
 
     system("clear");
 
-    printf("%i|%s|%s| S1: %.3f\", S2: %.3f\", S3: %.3f\"|laps:%i\n",currentRacers[0].number,currentRacers[0].name,currentRacers[0].team,karts[0].s1 / 1000.0, karts[0].s2 / 1000.0,karts[0].s3 / 1000.0, karts[0].lapNbr);
+    for (int i =0; i<NUMBEROFKART;i++) {
+
+
+
+        printf("%i|%s|%s| S1: %.3f\", S2: %.3f\", S3: %.3f\"|laps:%i\n",currentRacers[i].number,currentRacers[i].name,currentRacers[i].team,karts[i].s1 / 1000.0, karts[i].s2 / 1000.0,karts[i].s3 / 1000.0, karts[i].lapNbr);
+
+
+
+    }
+
 
 
 
@@ -682,49 +691,53 @@ int lauchTheEvent(void) {
     printf("helllo\n");
     //while (1) {}
 
-    int fd[2];
-    pipe(fd);
+    int fd[NUMBEROFKART][2];
+
 
     for (int i =0; i<NUMBEROFKART;i++) {
+
+        pipe(fd[i]);
 
 
         pid_t pid = fork();
 
+        srand(time(NULL) ^ getpid());//regen random for each children
+
 
         if (pid == 0) {
             printf("kidsss\n");
-            close(fd[0]);
+            close(fd[i][0]);
 
 
 
-            genTimeCore(&options,&fd);
-        }else {
-            close(fd[1]);
-            printf("parent\n");
-
-            //displayPractice();
-
-            while (1) {
-                read(fd[0], &karts[0], sizeof(karts[0]));
-                //usleep(5000);
-                displayPractice();
-            };
-
-
-            close(fd[0]);
+            genTimeCore(&options,fd[i],i);
+            _exit(EXIT_SUCCESS);
         }
 
+        //parent
 
-
-
+        close(fd[i][1]);
     }
 
 
+    printf("parent\n");
 
+    //displayPractice();
 
+    while (1) {
 
+        for (int a = 0; a<NUMBEROFKART;a++) {
+
+            read(fd[a][0], &karts[a], sizeof(karts[a]));
+
+        }
+
+        //usleep(5000);
+        displayPractice();
+    };
 
     //genTimeCore(&options);
+    close(fd[0]);
 
 }
 
