@@ -6,6 +6,10 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <poll.h>    // poll() pour surveiller 20 pipes
+
 
 #include "include/util.h"
 
@@ -663,7 +667,7 @@ void displayPractice(void)
 {
     printf("\033[H\033[J");
 
-    printf("%-3s | %-20s | %-11s | %-11s | %-11s | %-5s | %-35s\n",
+    printf("%-3s | %-20s | %-11s | %-11s | %-11s | %-5s | %-5s\n",
            "#", "Pilote", "S1", "S2", "S3", "Laps", "Équipe");
     puts("-------------------------------------------------------------------------------------------------------------");
 
@@ -698,6 +702,13 @@ int lauchTheEvent(void) {
 
         pid_t pid = fork();
 
+        if (pid > 0) {
+            close(fd[i][1]);
+
+            int fl = fcntl(fd[i][0], F_GETFL);
+            fcntl(fd[i][0], F_SETFL, fl | O_NONBLOCK);
+        }
+
         srand(time(NULL) ^ getpid());//regen random for each children
 
 
@@ -723,17 +734,46 @@ int lauchTheEvent(void) {
 
     //displayPractice();
 
+    struct pollfd p[NUMBEROFKART];
+    for (int i = 0; i < NUMBEROFKART; ++i) {
+        p[i].fd     = fd[i][0];
+        p[i].events = POLLIN;
+    }
+
+
     while (1) {
 
-        for (int a = 0; a<NUMBEROFKART;a++) {
+        usleep(2000);
 
-            read(fd[a][0], &karts[a], sizeof(karts[a]));
 
+        int ready = poll(p, NUMBEROFKART, -1);
+        if (ready == -1) {
+            perror("poll");
+            break;
         }
 
-        //usleep(5000);
+        for (int i = 0; i < NUMBEROFKART; ++i) {
+            if (p[i].fd == -1) continue;
+
+            if (p[i].revents & POLLIN) {
+
+                ssize_t n;
+                while ((n = read(fd[i][0], &karts[i], sizeof karts[i])) == sizeof karts[i]) {
+                }
+
+                if (n == 0) {
+                    close(fd[i][0]);
+                    p[i].fd = -1;
+                }
+                else if (n == -1 && errno != EAGAIN) {
+                    perror("read");
+                }
+            }
+        }
+
         displayPractice();
-    };
+    }
+
 
     //genTimeCore(&options);
     close(fd[0]);
