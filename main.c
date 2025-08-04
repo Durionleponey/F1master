@@ -37,6 +37,7 @@ typedef struct kart {
 
 Kart karts[NUMBEROFKART];
 
+/*--------------------------------------------------------------------------------------------------------------------*/
 
 
 
@@ -69,6 +70,8 @@ typedef struct structProgramOptions {
 } ProgramOptions;
 
 ProgramOptions options;
+
+/*--------------------------------------------------------------------------------------------------------------------*/
 
 
 void printProgramOptions(const ProgramOptions *opts) {
@@ -114,6 +117,10 @@ int init(void) {
         kars[i].s1 =0;
         kars[i].s2 =0;
         kars[i].s3 =0;
+
+        kars[i].piloteNumber = currentRacers[i].number;
+
+
     }
 
     // typedef struct kart {
@@ -197,14 +204,13 @@ int genTimeCore(ProgramOptions *pParms, int *fd) {
 
     int numberOfTour=pParms->laps;
 
-    printf("number of lape that will be done --> %i\n\n\n",numberOfTour);
+    printf("number of lap that will be done --> %i\n\n\n",numberOfTour);
 
 
     while (numberOfTour) {
 
         karts[0].s1 = 0;
         karts[0].s2 = 0;
-        karts[0].s3 = 0;
         karts[0].lapNbr = numberOfTour;
         write(fd[1], &karts[0], sizeof(karts[0]));
 
@@ -231,6 +237,7 @@ int genTimeCore(ProgramOptions *pParms, int *fd) {
                 case 1:
                     printf("seconde s1 ---> %f\n",(realtime));
                     karts[0].s1 = realtime;
+                    karts[0].s3 = 0;
                     write(fd[1], &karts[0], sizeof(karts[0]));
                     break;
                 case 2:
@@ -657,7 +664,8 @@ void displayPractice(void) {
 
     system("clear");
 
-    printf("%s|S1:%.3f,S2:%.3f,S3:%.3f|laps:%i\n",&*currentRacers[0].name,karts[0].s1 / 1000.0, karts[0].s2 / 1000.0,karts[0].s3 / 1000.0, karts[0].lapNbr);
+    printf("%i|%s|%s| S1: %.3f\", S2: %.3f\", S3: %.3f\"|laps:%i\n",currentRacers[0].number,currentRacers[0].name,currentRacers[0].team,karts[0].s1 / 1000.0, karts[0].s2 / 1000.0,karts[0].s3 / 1000.0, karts[0].lapNbr);
+
 
 
 
@@ -677,40 +685,42 @@ int lauchTheEvent(void) {
     int fd[2];
     pipe(fd);
 
+    for (int i =0; i<NUMBEROFKART;i++) {
 
 
-    pid_t pid = fork();
+        pid_t pid = fork();
 
 
-    if (pid == 0) {
-        printf("kidsss\n");
-        close(fd[0]);
-        //char message[100] = "coucou lol";
-        // karts[0].s1=30;
-        // karts[0].s2=60;
-        // karts[0].s3=90;
-        // //sleep(3);
-        // write(fd[1], &karts[0], sizeof(karts[0]));
-        // close(fd[1]);
-
-        genTimeCore(&options,&fd);
-    }else {
-        close(fd[1]);
-        printf("parent\n");
-
-        printf("%f\n", karts[0].s1);
-        printf("%f\n", karts[0].s2);
-        //displayPractice();
-
-        while (1) {
-            read(fd[0], &karts[0], sizeof(karts[0]));
-            //usleep(5000);
-            displayPractice();
-        };
+        if (pid == 0) {
+            printf("kidsss\n");
+            close(fd[0]);
 
 
-        close(fd[0]);
+
+            genTimeCore(&options,&fd);
+        }else {
+            close(fd[1]);
+            printf("parent\n");
+
+            //displayPractice();
+
+            while (1) {
+                read(fd[0], &karts[0], sizeof(karts[0]));
+                //usleep(5000);
+                displayPractice();
+            };
+
+
+            close(fd[0]);
+        }
+
+
+
+
     }
+
+
+
 
 
 
