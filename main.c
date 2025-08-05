@@ -25,6 +25,9 @@
 
 #define MILLI_PER_MINUTE 1000
 
+#define CHANCETOGOPITING 10
+#define SECONDLOSTINPIT 25
+
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 
@@ -162,6 +165,7 @@ int genTimeCore(ProgramOptions *pParms, int fd[2], int id) {
   //non sign int
   int totaltimestamp =0;
   int sector =0;
+    float timeinpit;
 
     printProgramOptions(&options);
   //
@@ -238,6 +242,8 @@ int genTimeCore(ProgramOptions *pParms, int fd[2], int id) {
             float realtime = sector;
             sector= sector/pParms->speedfactor;
 
+
+
             //printf("seconde ---> %f\n",(sector));
 
             usleep(sector*1000);
@@ -257,7 +263,20 @@ int genTimeCore(ProgramOptions *pParms, int fd[2], int id) {
                     write(fd[1], &karts[id], sizeof(karts[id]));
                     break;
                 case 3:
+                    if (getRandomTime(1, CHANCETOGOPITING) == 1) {
+
+                        karts[id].isPitting = true;
+                        write(fd[1], &karts[id], sizeof(karts[id]));
+
+                        sleep(SECONDLOSTINPIT/options.speedfactor);
+
+                        realtime+=SECONDLOSTINPIT*1000;
+
+                    }
+
+
                     //printf("seconde s3---> %f\n",(realtime));
+                    karts[id].isPitting = false;
                     karts[id].s3 = realtime;
                     karts[id].stepDone++;
                     write(fd[1], &karts[id], sizeof(karts[id]));
@@ -693,13 +712,13 @@ void displayPractice(void)
 
     printf("\033[H\033[J");
 
-    printf("%-3s |%-3s | %-20s | %-11s | %-11s | %-11s | %-5s | %-5s\n",
-           "#", "Num", "Pilote", "S1", "S2", "S3", "Laps", "Équipe");
+    printf("%-3s |%-3s | %-20s | %-11s | %-11s | %-11s | %-5s | %-5s | %-5s\n",
+           "#", "Num", "Pilote", "S1", "S2", "S3", "Laps","Pit", "Équipe");
     puts("-------------------------------------------------------------------------------------------------------------");
 
     for (int i = 0; i < NUMBEROFKART; ++i) {
         ii = order[i];
-        printf("%-3d | %-3d | %-20s | %8.3f\" | %8.3f\" | %8.3f\" | %-5d | %-35s\n",
+        printf("%-3d | %-3d | %-20s | %8.3f\" | %8.3f\" | %8.3f\" | %-5d | %-5s | %-35s\n",
             i+1,
                currentRacers[ii].number,
                currentRacers[ii].name,
@@ -707,6 +726,7 @@ void displayPractice(void)
                karts[ii].s2 / 1000.0,
                karts[ii].s3 / 1000.0,
                karts[ii].lapNbr,
+               karts[ii].isPitting ? "🛠️" : "🟢",
                currentRacers[ii].team);
     }
 }
@@ -887,7 +907,7 @@ int mainMenu(void) {
             //changeDriverTheme(&currentRacers);
             animation("Practice");
 
-            options.speedfactor = 5;
+            options.speedfactor = 10;
 
             lauchTheEvent();
 
@@ -895,7 +915,7 @@ int mainMenu(void) {
 
 
 
-        case 1:
+         case 1:
             break;
         case 2:
             break;
