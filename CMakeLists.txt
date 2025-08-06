@@ -11,6 +11,8 @@ add_executable(OS2
         include/util.c
         include/pilot.c
         include/pilot.h
+        include/shared_memory.h
+        include/shared_memory.c
 )
 
 target_link_libraries(OS2 ${CURSES_LIBRARIES})

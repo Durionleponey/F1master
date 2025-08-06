@@ -46,7 +46,6 @@ typedef struct kart {
 
 Kart karts[NUMBEROFKART];
 
-/*--------------------------------------------------------------------------------------------------------------------*/
 
 
 
@@ -74,11 +73,23 @@ typedef struct structProgramOptions {
     RaceType raceType;
     bool special;
     int laps;
+    int time_left;
     int speedfactor;
     bool verbose;
 } ProgramOptions;
 
 ProgramOptions options;
+
+
+typedef struct structEventBest{
+
+    float sector_best[3];
+    float best_lap;
+
+} EventBest;
+
+EventBest eventBest;
+
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
@@ -98,6 +109,12 @@ void printProgramOptions(const ProgramOptions *opts) {
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/
+
+
+void ensure_file_exists(const char *path) {
+    int fd = open(path, O_CREAT | O_RDWR, 0666);
+    if (fd != -1) close(fd);
+}
 
 
 
@@ -160,7 +177,7 @@ int getRandomTime(int minTime, int maxTime) {
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
-int genTimeCore(ProgramOptions *pParms, int fd[2], int id) {
+int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
   uint32_t maxRaceTime;
   //non sign int
   int totaltimestamp =0;
@@ -203,7 +220,7 @@ int genTimeCore(ProgramOptions *pParms, int fd[2], int id) {
   }
 
 
-    // karts[0].s1=30;
+    // karts[0MILLI_PER_MINUTE].s1=30;
     // karts[0].s2=60;
     // karts[0].s3=90;
     //sleep(3);
@@ -743,9 +760,11 @@ int lauchTheEvent(void) {
     int fd[NUMBEROFKART][2];
 
 
+
     for (int i =0; i<NUMBEROFKART;i++) {
 
         pipe(fd[i]);
+
 
 
         pid_t pid = fork();
@@ -755,6 +774,7 @@ int lauchTheEvent(void) {
 
             int fl = fcntl(fd[i][0], F_GETFL);
             fcntl(fd[i][0], F_SETFL, fl | O_NONBLOCK);
+
         }
 
         srand(time(NULL) ^ getpid());//regen random for each children
@@ -788,6 +808,7 @@ int lauchTheEvent(void) {
         p[i].fd     = fd[i][0];
         p[i].events = POLLIN;
     }
+
 
 
     while (1) {
