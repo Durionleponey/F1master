@@ -96,6 +96,13 @@ typedef struct structEventBest{
 
 //EventBest eventBest;
 
+/* shared_state.h */
+typedef struct {
+    EventBest event;
+    Kart      karts[NUMBEROFKART];
+} SharedState;
+
+
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -153,10 +160,10 @@ int init(void) {
 
     data = (EventBest *)attach_memory_block(filenameforsharedmemory, sizeof(EventBest));
 
-    (*data).best_lap=9999;//sorry but (*data) it's more logic for me
-    (*data).sector_best[0]=9999;
-    (*data).sector_best[1]=9999;
-    (*data).sector_best[2]=9999;
+    (*data).best_lap=INFINITY;//sorry but (*data) it's more logic for me
+    (*data).sector_best[0]=INFINITY;
+    (*data).sector_best[1]=INFINITY;
+    (*data).sector_best[2]=INFINITY;
 
 
 
@@ -313,6 +320,12 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
                         karts[id].bs1 = realtime;
                         //printf("changement\n");
                     }
+
+
+                    if (realtime < (*data).sector_best[0]) {
+                        (*data).sector_best[0] = realtime;
+
+                    }
                     karts[id].s3 = 0;
                     karts[id].stepDone++;
                     write(fd[1], &karts[id], sizeof(karts[id]));
@@ -323,6 +336,12 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
                     if (realtime < karts[id].bs2) {
                         karts[id].bs2 = realtime;
                     }
+
+                    if (realtime < (*data).sector_best[1]) {
+                        (*data).sector_best[1] = realtime;
+
+                    }
+
                     karts[id].stepDone++;
                     write(fd[1], &karts[id], sizeof(karts[id]));
                     break;
@@ -346,6 +365,11 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
                     if (realtime < karts[id].bs3) {
                         karts[id].bs3 = realtime;
                     }
+
+                    if (realtime < (*data).sector_best[2]) {
+                        (*data).sector_best[2] = realtime;
+
+                    }
                     karts[id].stepDone++;
                     write(fd[1], &karts[id], sizeof(karts[id]));
                     break;
@@ -353,12 +377,7 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
 
             }
 
-
-
         }
-
-
-
         //printf("🥳🥳LAP COMPLETED ! left--> %i\n\n\n",numberOfTour);
         karts[id].lapNbr--;
 
@@ -864,7 +883,6 @@ int lauchTheEvent(void) {
 
     //printf("parent\n");
 
-    //displayPractice();
 
 
     struct pollfd p[NUMBEROFKART];
