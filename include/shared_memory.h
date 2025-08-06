@@ -7,6 +7,9 @@
 
 #include <stdbool.h>
 
+//Create shared block
+int get_shared_block(char *filename, int size);
+
 // Attach a shared memory block
 // Associated with filename
 // Create it if it doesn't exist

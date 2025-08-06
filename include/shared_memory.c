@@ -13,7 +13,7 @@
 #define IPC_RESULT_ERROR (-1)
 
 // Fonction interne : retourne un identifiant de segment partagé à partir d’un fichier
-static int get_shared_block(char *filename, int size) {
+int get_shared_block(char *filename, int size) {
     key_t key = ftok(filename, 0);
     printf("key-->%i",key);
     if (key == IPC_RESULT_ERROR) {

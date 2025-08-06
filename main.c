@@ -9,11 +9,13 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <poll.h>    // poll() pour surveiller 20 pipes
+#include "include/shared_memory.h"
 
+
+
+/*--------------------------------------------------------------------------------------------------------------------*/
 
 #include "include/util.h"
-
-
 #include "include/pilot.h"
 
 
@@ -27,6 +29,8 @@
 
 #define CHANCETOGOPITING 10
 #define SECONDLOSTINPIT 25
+
+#define BLOCK_SIZE 4096
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
@@ -88,7 +92,8 @@ typedef struct structEventBest{
 
 } EventBest;
 
-EventBest eventBest;
+//EventBest eventBest;
+
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -104,10 +109,6 @@ void printProgramOptions(const ProgramOptions *opts) {
     printf("Verbose: %s\n", opts->verbose ? "Enabled" : "Disabled");
 }
 
-
-
-
-
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 
@@ -116,19 +117,52 @@ void ensure_file_exists(const char *path) {
     if (fd != -1) close(fd);
 }
 
-
-
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 
 Driver const *currentRacers = DRIVER_LIST_CRASH;
 
+EventBest *data;
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 
 
+/*--------------------------------------------------------------------------------------------------------------------*/
+
+
 int init(void) {
+
+
+    char *filenameforsharedmemory = "sharedmemory";
+
+    ensure_file_exists(filenameforsharedmemory);
+
+
+    //shard memory stuff
+
+    char *charedMemory;
+
+    //create shared memory
+    get_shared_block(filenameforsharedmemory, BLOCK_SIZE);
+
+    //charedMemory = attach_memory_block(filenameforsharedmemory, BLOCK_SIZE);
+    //*charedMemory != because * mean go to address en write
+
+    data = (EventBest *)attach_memory_block(filenameforsharedmemory, sizeof(EventBest));
+
+    (*data).best_lap=9999;//sorry but (*data) it's more logic for me
+    (*data).sector_best[0]=9999;
+    (*data).sector_best[1]=9999;
+    (*data).sector_best[2]=9999;
+
+
+
+
+    printf("parent --> %f",((*data).best_lap));
+
+
+
 
     srand(time(NULL));
     //init the random number generator
@@ -152,6 +186,7 @@ int init(void) {
 
 
     }
+
 
     // typedef struct kart {
     //     int kartId;
@@ -239,6 +274,8 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
 
 
     while (karts[id].lapNbr) {
+        printf("aaaaaaaaaaaaaaaaaaaa");
+        printf("enfant --> %f\n",((*data).best_lap));
 
         karts[id].s1 = 0;
         karts[id].s2 = 0;
@@ -754,6 +791,11 @@ void displayPractice(void)
 
 int lauchTheEvent(void) {
 
+
+
+
+
+
     printf("helllo\n");
     //while (1) {}
 
@@ -800,7 +842,7 @@ int lauchTheEvent(void) {
 
     printf("parent\n");
 
-    //displayPractice();
+    displayPractice();
 
 
     struct pollfd p[NUMBEROFKART];
@@ -841,7 +883,9 @@ int lauchTheEvent(void) {
             }
         }
 
-        displayPractice();
+        printf("parent --> %f\n",((*data).best_lap));
+
+        //displayPractice();
     }
 
 
@@ -983,6 +1027,7 @@ int main(void) {
 
 
     init();
+
     //ProgramOptions options;
 
 
@@ -1005,6 +1050,7 @@ int main(void) {
 
 
     //genTimeCore(&options);
+
 
 
 
