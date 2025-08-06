@@ -90,17 +90,14 @@ ProgramOptions options;
 typedef struct structEventBest{
 
     float sector_best[3];
+    int sector_best_car_id[3];
     float best_lap;
 
 } EventBest;
 
 //EventBest eventBest;
 
-/* shared_state.h */
-typedef struct {
-    EventBest event;
-    Kart      karts[NUMBEROFKART];
-} SharedState;
+
 
 
 
@@ -324,6 +321,8 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
 
                     if (realtime < (*data).sector_best[0]) {
                         (*data).sector_best[0] = realtime;
+                        (*data).sector_best_car_id[0] = id;
+
 
                     }
                     karts[id].s3 = 0;
@@ -339,6 +338,7 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
 
                     if (realtime < (*data).sector_best[1]) {
                         (*data).sector_best[1] = realtime;
+                        (*data).sector_best_car_id[1] = id;
 
                     }
 
@@ -364,10 +364,12 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
                     karts[id].s3 = realtime;
                     if (realtime < karts[id].bs3) {
                         karts[id].bs3 = realtime;
+                        (*data).sector_best_car_id[2] = id;
                     }
 
                     if (realtime < (*data).sector_best[2]) {
                         (*data).sector_best[2] = realtime;
+                        (*data).sector_best_car_id[2] = id;
 
                     }
                     karts[id].stepDone++;
@@ -821,9 +823,9 @@ void displayPractice(void)
     }
 
     printf("\n");
-    printf("best S1:%f\n",(*data).sector_best[0]);
-    printf("best S2:%f\n",(*data).sector_best[1]);
-    printf("best S3:%f\n",(*data).sector_best[2]);
+    printf("best S1: %f by %s\n",((*data).sector_best[0]/1000),currentRacers[(*data).sector_best_car_id[0]].name);
+    printf("best S2: %f by %s\n",((*data).sector_best[1]/1000),currentRacers[(*data).sector_best_car_id[1]].name);
+    printf("best S3: %f by %s\n",((*data).sector_best[2]/1000),currentRacers[(*data).sector_best_car_id[2]].name);
     printf("best Laps:%f\n",(*data).best_lap);
 }
 
