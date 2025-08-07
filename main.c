@@ -128,7 +128,7 @@ void ensure_file_exists(const char *path) {
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 
-Driver const *currentRacers = DRIVER_TROPEZ;
+Driver const *currentRacers = DRIVER_LIST_CRASH;
 
 EventBest *data;
 
@@ -312,6 +312,11 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
 
                     if (karts[id].lapTime < INFINITY) {
                         karts[id].bestLapTime = karts[id].lapTime;
+
+                        if (karts[id].lapTime < (*data).best_lap) {
+                            (*data).best_lap = karts[id].lapTime;
+                            (*data).best_lap_car_id = id;
+                        }
 
                     }
 
@@ -838,7 +843,7 @@ void displayPractice(void)
     printf("best S1: %f\" by %s\n",((*data).sector_best[0]/1000),currentRacers[(*data).sector_best_car_id[0]].name);
     printf("best S2: %f\" by %s\n",((*data).sector_best[1]/1000),currentRacers[(*data).sector_best_car_id[1]].name);
     printf("best S3: %f\" by %s\n",((*data).sector_best[2]/1000),currentRacers[(*data).sector_best_car_id[2]].name);
-    printf("best Laps:%f\n",(*data).best_lap);
+    printf("best Lap: %f\" by %s\n",((*data).best_lap/1000),currentRacers[(*data).best_lap_car_id].name);
 }
 
 
@@ -1026,7 +1031,7 @@ int mainMenu(void) {
             //changeDriverTheme(&currentRacers);
             animation("Practice");
 
-            options.speedfactor = 1;
+            options.speedfactor = 50;
 
             lauchTheEvent();
 
