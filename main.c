@@ -310,7 +310,7 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
                     //printf("seconde s1 ---> %f\n",(realtime));
                     karts[id].s1 = realtime;
 
-                    if (karts[id].lapTime < INFINITY) {
+                    if (karts[id].lapTime < karts[id].bestLapTime) {
                         karts[id].bestLapTime = karts[id].lapTime;
 
                         if (karts[id].lapTime < (*data).best_lap) {
