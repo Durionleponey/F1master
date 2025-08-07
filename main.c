@@ -42,6 +42,7 @@ typedef struct kart {
     int piloteNumber;
     int lapNbr;
     int isPitting;
+    float lapTime;
     float bestLapTime;
     float s1, s2, s3;
     float bs1, bs2, bs3;
@@ -92,6 +93,7 @@ typedef struct structEventBest{
     float sector_best[3];
     int sector_best_car_id[3];
     float best_lap;
+    int best_lap_car_id;
 
 } EventBest;
 
@@ -126,7 +128,7 @@ void ensure_file_exists(const char *path) {
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 
-Driver const *currentRacers = DRIVER_LIST_CRASH;
+Driver const *currentRacers = DRIVER_TROPEZ;
 
 EventBest *data;
 
@@ -178,7 +180,7 @@ int init(void) {
    for (int i = 0; i < NUMBEROFKART; ++i) {
 
         karts[i].lapNbr      = 0;
-       karts[i].bestLapTime = INFINITY;
+       karts[i].lapTime = karts[i].bestLapTime = INFINITY;
        karts[i].isOut       = false;
        karts[i].isPitting   = 0;
        karts[i].s1 = karts[i].s2 = karts[i].s3 = 0;
@@ -267,7 +269,6 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
     if (pParms->special){}
 
 
-
     karts[id].lapNbr=pParms->laps;
 
     //printf("number of lap that will be done --> %i\n\n\n",numberOfTour);
@@ -308,6 +309,14 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
                 case 1:
                     //printf("seconde s1 ---> %f\n",(realtime));
                     karts[id].s1 = realtime;
+
+                    if (karts[id].lapTime < INFINITY) {
+                        karts[id].bestLapTime = karts[id].lapTime;
+
+                    }
+
+
+                    karts[id].lapTime = realtime;
                     //printf("realti---> %f\n",realtime);
                     //printf("karts1---> %f\n",karts[id].bs1);
                     if (realtime < karts[id].bs1) {
@@ -332,6 +341,7 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
                 case 2:
                     //printf("seconde s2 ---> %f\n",(realtime));
                     karts[id].s2 = realtime;
+                    karts[id].lapTime += realtime;
                     if (realtime < karts[id].bs2) {
                         karts[id].bs2 = realtime;
                     }
@@ -362,6 +372,7 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
                     //printf("seconde s3---> %f\n",(realtime));
                     karts[id].isPitting = false;
                     karts[id].s3 = realtime;
+                    karts[id].lapTime += realtime;
                     if (realtime < karts[id].bs3) {
                         karts[id].bs3 = realtime;
                         (*data).sector_best_car_id[2] = id;
@@ -801,13 +812,13 @@ void displayPractice(void)
 
     printf("\033[H\033[J");
 
-    printf("%-3s |%-3s | %-20s | %-11s | %-11s | %-11s | %-11s | %-11s | %-11s | %-5s | %-5s | %-5s\n",
-           "#", "Num", "Pilote", "S1", "S2", "S3", "BS1", "BS2", "BS3", "Laps","Pit", "Équipe");
+    printf("%-3s |%-3s | %-20s | %-11s | %-11s | %-11s | %-11s | %-11s | %-11s | %-11s | %-5s | %-5s | %-5s\n",
+           "#", "Num", "Pilote", "S1", "S2", "S3", "BS1", "BS2", "BS3", "BLaps", "Laps","Pit", "Team");
     puts("-------------------------------------------------------------------------------------------------------------");
 
     for (int i = 0; i < NUMBEROFKART; ++i) {
         ii = order[i];
-        printf("%-3d | %-3d | %-20s | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %-5d | %-5s | %-35s\n",
+        printf("%-3d | %-3d | %-20s | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %-5d | %-5s | %-35s\n",
             i+1,
                currentRacers[ii].number,
                currentRacers[ii].name,
@@ -817,15 +828,16 @@ void displayPractice(void)
                karts[ii].bs1 / 1000.0,
                karts[ii].bs2 / 1000.0,
                karts[ii].bs3 / 1000.0,
+               karts[ii].bestLapTime / 1000.0,
                karts[ii].lapNbr,
                karts[ii].isPitting ? "🛠️" : "🟢",
                currentRacers[ii].team);
     }
 
     printf("\n");
-    printf("best S1: %f by %s\n",((*data).sector_best[0]/1000),currentRacers[(*data).sector_best_car_id[0]].name);
-    printf("best S2: %f by %s\n",((*data).sector_best[1]/1000),currentRacers[(*data).sector_best_car_id[1]].name);
-    printf("best S3: %f by %s\n",((*data).sector_best[2]/1000),currentRacers[(*data).sector_best_car_id[2]].name);
+    printf("best S1: %f\" by %s\n",((*data).sector_best[0]/1000),currentRacers[(*data).sector_best_car_id[0]].name);
+    printf("best S2: %f\" by %s\n",((*data).sector_best[1]/1000),currentRacers[(*data).sector_best_car_id[1]].name);
+    printf("best S3: %f\" by %s\n",((*data).sector_best[2]/1000),currentRacers[(*data).sector_best_car_id[2]].name);
     printf("best Laps:%f\n",(*data).best_lap);
 }
 
@@ -1014,7 +1026,7 @@ int mainMenu(void) {
             //changeDriverTheme(&currentRacers);
             animation("Practice");
 
-            options.speedfactor = 100;
+            options.speedfactor = 1;
 
             lauchTheEvent();
 
