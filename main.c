@@ -9,7 +9,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <poll.h>    // poll() pour surveiller 20 pipes
-#include "include/shared_memory.h"
+#include <semaphore.h>
 
 
 
@@ -17,7 +17,7 @@
 
 #include "include/util.h"
 #include "include/pilot.h"
-
+#include "include/shared_memory.h"
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
@@ -94,11 +94,11 @@ typedef struct structEventBest{
     int sector_best_car_id[3];
     float best_lap;
     int best_lap_car_id;
+    sem_t semaphore[4];
 
 } EventBest;
 
 //EventBest eventBest;
-
 
 
 
@@ -140,6 +140,7 @@ EventBest *data;
 
 
 int init(void) {
+
 
 
     char *filenameforsharedmemory = "sharedmemory";
@@ -188,6 +189,13 @@ int init(void) {
        karts[i].stepDone    = 0;
        karts[i].piloteNumber = currentRacers[i].number;
         }
+
+    //semaphore stuff
+
+    sem_init(&((*data).semaphore[0]), 1, 1);
+    sem_init(&((*data).semaphore[1]), 1, 1);
+    sem_init(&((*data).semaphore[2]), 1, 1);
+    sem_init(&((*data).semaphore[3]), 1, 1);
 
 
     // typedef struct kart {
@@ -313,10 +321,13 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
                     if (karts[id].lapTime < karts[id].bestLapTime) {
                         karts[id].bestLapTime = karts[id].lapTime;
 
+                        sem_wait(&((*data).semaphore[3]));
+
                         if (karts[id].lapTime < (*data).best_lap) {
                             (*data).best_lap = karts[id].lapTime;
                             (*data).best_lap_car_id = id;
                         }
+                        sem_post(&((*data).semaphore[3]));
 
                     }
 
@@ -332,6 +343,8 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
                         //printf("changement\n");
                     }
 
+                    sem_wait(&((*data).semaphore[0]));
+
 
                     if (realtime < (*data).sector_best[0]) {
                         (*data).sector_best[0] = realtime;
@@ -339,6 +352,8 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
 
 
                     }
+
+                    sem_post(&((*data).semaphore[0]));
                     karts[id].s3 = 0;
                     karts[id].stepDone++;
                     write(fd[1], &karts[id], sizeof(karts[id]));
@@ -351,11 +366,17 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
                         karts[id].bs2 = realtime;
                     }
 
+                    sem_wait(&((*data).semaphore[1]));
+
                     if (realtime < (*data).sector_best[1]) {
                         (*data).sector_best[1] = realtime;
                         (*data).sector_best_car_id[1] = id;
 
                     }
+
+                    sem_post(&((*data).semaphore[1]));
+
+
 
                     karts[id].stepDone++;
                     write(fd[1], &karts[id], sizeof(karts[id]));
@@ -383,11 +404,15 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
                         (*data).sector_best_car_id[2] = id;
                     }
 
+                    sem_wait(&((*data).semaphore[2]));
+
                     if (realtime < (*data).sector_best[2]) {
                         (*data).sector_best[2] = realtime;
                         (*data).sector_best_car_id[2] = id;
 
                     }
+
+                    sem_post(&((*data).semaphore[2]));
                     karts[id].stepDone++;
                     write(fd[1], &karts[id], sizeof(karts[id]));
                     break;
@@ -840,10 +865,10 @@ void displayPractice(void)
     }
 
     printf("\n");
-    printf("best S1: %f\" by %s\n",((*data).sector_best[0]/1000),currentRacers[(*data).sector_best_car_id[0]].name);
-    printf("best S2: %f\" by %s\n",((*data).sector_best[1]/1000),currentRacers[(*data).sector_best_car_id[1]].name);
-    printf("best S3: %f\" by %s\n",((*data).sector_best[2]/1000),currentRacers[(*data).sector_best_car_id[2]].name);
-    printf("best Lap: %f\" by %s\n",((*data).best_lap/1000),currentRacers[(*data).best_lap_car_id].name);
+    printf("best S1: %8.3f\" by %s\n",((*data).sector_best[0]/1000),currentRacers[(*data).sector_best_car_id[0]].name);
+    printf("best S2: %8.3f\" by %s\n",((*data).sector_best[1]/1000),currentRacers[(*data).sector_best_car_id[1]].name);
+    printf("best S3: %8.3f\" by %s\n\n",((*data).sector_best[2]/1000),currentRacers[(*data).sector_best_car_id[2]].name);
+    printf("best Lap: %7.3f\" by %s\n",((*data).best_lap/1000),currentRacers[(*data).best_lap_car_id].name);
 }
 
 
@@ -1081,6 +1106,7 @@ int mainMenu(void) {
 int main(void) {
 
 
+
     init();
 
     //ProgramOptions options;
@@ -1110,6 +1136,9 @@ int main(void) {
 
 
     mainMenu();
+
+
+    sem_destroy(&((*data).semaphore));
 
 
 
