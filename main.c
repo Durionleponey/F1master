@@ -25,7 +25,8 @@
 #define NUMBEROFRACE 24
 #define NUMBEROFSECTOR 3
 
-#define MILLI_PER_MINUTE 1000
+#define SECOND_PER_MINUTE 60
+#define TIME_FOR_PRACTICE 60
 
 #define CHANCETOGOPITING 10
 #define CHANCETOGOOUT 1000
@@ -89,6 +90,7 @@ typedef struct structEventBest{
     int sector_best_car_id[3];
     float best_lap;
     int best_lap_car_id;
+    int time_left;
     sem_t semaphore[4];
 
 } EventBest;
@@ -225,46 +227,6 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
     float timeinpit;
 
     printProgramOptions(&options);
-  //
-  // if (pParms->raceType == race_P1 || pParms->raceType == race_P2 || pParms->raceType == race_P3) {//si c'est practice
-  //   maxRaceTime = 60 * MILLI_PER_MINUTE;//1000
-  // } else if (pParms->raceType == race_Q1_GP) {
-  //   maxRaceTime = 18 * MILLI_PER_MINUTE;
-  // } else if (pParms->raceType == race_Q2_GP) {
-  //   maxRaceTime = 15 * MILLI_PER_MINUTE;
-  // } else if (pParms->raceType == race_Q3_GP) {
-  //   maxRaceTime = 12 * MILLI_PER_MINUTE;
-  // } else if (pParms->raceType == race_Q1_SPRINT) {
-  //   maxRaceTime = 12 * MILLI_PER_MINUTE;
-  // } else if (pParms->raceType == race_Q2_SPRINT) {
-  //   maxRaceTime = 10 * MILLI_PER_MINUTE;
-  // } else if (pParms->raceType == race_Q3_SPRINT) {
-  //   maxRaceTime = 8 * MILLI_PER_MINUTE;
-  // } else {
-  //   maxRaceTime = 0;
-  // }
-
-  //printf("maxRaceTime 🏃🏃 = %d\n", maxRaceTime);
-
-  if (!maxRaceTime) {
-    printf("no max run time, the event is a GP i guess!\n");
-  }
-
-  if (pParms->verbose) {
-    printf("verbose info:");//on affiche les infos, ou limité par un le nombre de tour ou limité par le nombre de minute
-    if (maxRaceTime == 0) {
-      printf("INFO: the race events generation will be limited to %d laps\n", pParms->laps);
-    } else {
-      printf("INFO: the race events generation will be limited to %d minutes\n", maxRaceTime / MILLI_PER_MINUTE);
-    }
-  }
-
-
-    // karts[0MILLI_PER_MINUTE].s1=30;
-    // karts[0].s2=60;
-    // karts[0].s3=90;
-    //sleep(3);
-
 
 
 
@@ -837,10 +799,19 @@ int speedfactorchanger(void) {
     return 1;
 }
 
+/*--------------------------------------------------------------------------------------------------------------------*/
+
+static int cmp_step_done(const void *a, const void *b){
+    const int ia = *(const int *)a;
+    const int ib = *(const int *)b;
+
+    return karts[ia].bestLapTime -karts[ib].bestLapTime;
+}
+
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
-int saveEvent(void) {
+int saveEvent(int top[]) {
 
     char filepath[100];
     snprintf(filepath, sizeof(filepath), "f1Master/%s", options.gpname);
@@ -852,8 +823,13 @@ int saveEvent(void) {
     }
 
 
+    fprintf(file, "Nouveau tour terminé !\n");
 
 
+
+
+
+    fclose(file);
 
 }
 
@@ -885,12 +861,6 @@ int createAfile(void) {
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 
-static int cmp_step_done(const void *a, const void *b){
-    const int ia = *(const int *)a;
-    const int ib = *(const int *)b;
-
-    return karts[ia].bestLapTime -karts[ib].bestLapTime;
-}
 
 
 void displayPractice(void)
@@ -940,17 +910,29 @@ void displayPractice(void)
     printf("best S1: %8.3f\" by %s\n",((*data).sector_best[0]/1000),currentRacers[(*data).sector_best_car_id[0]].name);
     printf("best S2: %8.3f\" by %s\n",((*data).sector_best[1]/1000),currentRacers[(*data).sector_best_car_id[1]].name);
     printf("best S3: %8.3f\" by %s\n\n",((*data).sector_best[2]/1000),currentRacers[(*data).sector_best_car_id[2]].name);
-    printf("best Lap: %7.3f\" by %s\n",((*data).best_lap/1000),currentRacers[(*data).best_lap_car_id].name);
+    printf("best Lap: %7.3f\" by %s\n\n",((*data).best_lap/1000),currentRacers[(*data).best_lap_car_id].name);
+
+    int secondes = (*data).time_left;
+    int minutes = secondes / 60;
+    int reste_secondes = secondes % 60;
+    printf("Time left: %02d:%02d\n\n", minutes, reste_secondes);
+
+
+
+
+    if (!(*data).time_left) {
+
+        saveEvent(order);
+
+    }
+
+
 }
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 int lauchTheEvent(void) {
-
-
-
-
 
 
     printf("helllo\n");
@@ -1007,42 +989,62 @@ int lauchTheEvent(void) {
         p[i].events = POLLIN;
     }
 
+    pid_t pidTime = fork();
 
+    if (pidTime == 0) {
+
+        while ((*data).time_left) {
+            sleep((1));
+            (*data).time_left-=(1*options.speedfactor);
+        }
+
+    }
+
+
+
+ while (1)
+{
+    for (int i = 0; i < NUMBEROFKART; ++i) {
+        fcntl(fd[i][0], F_SETFL, O_NONBLOCK);
+        p[i].fd     = fd[i][0];
+        p[i].events = POLLIN;
+    }
 
     while (1) {
-
         sleep(1);
 
-
-        int ready = poll(p, NUMBEROFKART, -1);
+        int ready = poll(p, NUMBEROFKART, 0);
         if (ready == -1) {
             perror("poll");
             break;
         }
 
-        for (int i = 0; i < NUMBEROFKART; ++i) {
-            if (p[i].fd == -1) continue;
+        if (ready > 0) {
+            for (int i = 0; i < NUMBEROFKART; ++i) {
+                if (p[i].fd == -1) continue;
+                if (p[i].revents & POLLIN) {
+                    ssize_t n;
+                    while ((n = read(fd[i][0],
+                                     &karts[i],
+                                     sizeof karts[i])) == sizeof karts[i]) {
+                    }
 
-            if (p[i].revents & POLLIN) {
-
-                ssize_t n;
-                while ((n = read(fd[i][0], &karts[i], sizeof karts[i])) == sizeof karts[i]) {
-                }
-
-                if (n == 0) {
-                    close(fd[i][0]);
-                    p[i].fd = -1;
-                }
-                else if (n == -1 && errno != EAGAIN) {
-                    perror("read");
+                    if (n == 0) {
+                        close(fd[i][0]);
+                        p[i].fd = -1;
+                    } else if (n == -1 && errno != EAGAIN) {
+                        perror("read");
+                    }
                 }
             }
         }
 
-        //printf("parent --> %f\n",((*data).best_lap));
+
 
         displayPractice();
     }
+}
+
 
 
     //genTimeCore(&options);
@@ -1126,6 +1128,7 @@ int mainMenu(void) {
             options.speedfactor = speedfactorchanger();
             changeDriverTheme(&currentRacers);
             animation("Practice");
+            (*data).time_left = TIME_FOR_PRACTICE * SECOND_PER_MINUTE;
             //options.speedfactor = SPEEDFACTOR;
 
             lauchTheEvent();
