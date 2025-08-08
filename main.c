@@ -843,19 +843,23 @@ void displayPractice(void)
         order[i] = i;
     }
 
+    float tdiff = 0.0f;
+
+
 
     qsort(order, NUMBEROFKART, sizeof(int), cmp_step_done);
 
 
     printf("\033[H\033[J");
 
-    printf("%-3s |%-4s | %-20s | %-9s | %-9s | %-9s | %-9s | %-9s | %-9s | %-9s | %-5s | %-2s | %-2s | %-5s\n",
-           "#", "Num", "Pilote", "S1", "S2", "S3", "BS1", "BS2", "BS3", "BLaps", "Laps","Pit","Run", "Team");
+    printf("%-3s |%-4s | %-20s | %-9s | %-9s | %-9s | %-9s | %-9s | %-9s | %-9s | %-9s | %-5s | %-2s | %-1s\n",
+           "#", "Num", "Pilote", "S1", "S2", "S3", "BS1", "BS2", "BS3", "BLaps", "TDiff", "Laps","Pit","Run");
     puts("-------------------------------------------------------------------------------------------------------------------------------------------------------");
 
     for (int i = 0; i < NUMBEROFKART; ++i) {
         ii = order[i];
-        printf("%-3d | %-3d | %-20s | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %-5d | %-5s | %-5s | %-35s\n",
+        tdiff = (karts[ii].bestLapTime - karts[order[i-1]].bestLapTime) / 1000.0f;
+        printf("%-3d | %-3d | %-20s | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %-5d | %-5s | %-5s\n",
             i+1,
                currentRacers[ii].number,
                currentRacers[ii].name,
@@ -866,12 +870,12 @@ void displayPractice(void)
                karts[ii].bs2 / 1000.0,
                karts[ii].bs3 / 1000.0,
                karts[ii].bestLapTime / 1000.0,
+               tdiff,
                karts[ii].lapNbr,
                karts[ii].isPitting ? "🛠️" : "🟢",
-               karts[ii].isOut ? "❌" : "🏎️",
-               currentRacers[ii].team);
+               karts[ii].isOut ? "❌" : "🏎️");
     }
-    //
+    //currentRacers[ii].team
 
     printf("\n");
     printf("best S1: %8.3f\" by %s\n",((*data).sector_best[0]/1000),currentRacers[(*data).sector_best_car_id[0]].name);
