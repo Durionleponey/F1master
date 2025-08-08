@@ -28,11 +28,14 @@
 #define MILLI_PER_MINUTE 1000
 
 #define CHANCETOGOPITING 10
+#define CHANCETOGOOUT 600
 #define SECONDLOSTINPIT 25
 
 #define BLOCK_SIZE 4096
 
 #define INFINITY 999999
+
+#define SPEEDFACTOR 1
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
@@ -273,7 +276,7 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
 
     //printf("number of lap that will be done --> %i\n\n\n",numberOfTour);
 
-    karts[id].lapTime=false;
+    karts[id].lapTime=INFINITY;
 
 
     while (karts[id].lapNbr && !karts[id].isOut) {
@@ -420,10 +423,10 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
         //printf("🥳🥳LAP COMPLETED ! left--> %i\n\n\n",numberOfTour);
         karts[id].lapNbr--;
         //
-        // if (getRandomTime(1, 10) == 1) {
-        //     karts[id].isOut = true;
-        //     write(fd[1], &karts[id], sizeof(karts[id]));
-        // }
+        if (getRandomTime(1, CHANCETOGOOUT) == 1) {
+            karts[id].isOut = true;
+            write(fd[1], &karts[id], sizeof(karts[id]));
+        }
 
 
     }
@@ -844,8 +847,8 @@ void displayPractice(void)
 
     printf("\033[H\033[J");
 
-    printf("%-3s |%-3s | %-20s | %-11s | %-11s | %-11s | %-11s | %-11s | %-11s | %-11s | %-5s | %-5s | %-5s\n",
-           "#", "Num", "Pilote", "S1", "S2", "S3", "BS1", "BS2", "BS3", "BLaps", "Laps","Pit", "Team");
+    printf("%-3s |%-3s | %-20s | %-11s | %-11s | %-11s | %-11s | %-11s | %-11s | %-11s | %-5s | %-5s | %-5s | %-5s\n",
+           "#", "Num", "Pilote", "S1", "S2", "S3", "BS1", "BS2", "BS3", "BLaps", "Laps","Pit","Crash", "Team");
     puts("-------------------------------------------------------------------------------------------------------------");
 
     for (int i = 0; i < NUMBEROFKART; ++i) {
@@ -1060,7 +1063,7 @@ int mainMenu(void) {
             //changeDriverTheme(&currentRacers);
             animation("Practice");
 
-            options.speedfactor = 50;
+            options.speedfactor = SPEEDFACTOR;
 
             lauchTheEvent();
 
