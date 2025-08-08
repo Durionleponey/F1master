@@ -28,14 +28,14 @@
 #define MILLI_PER_MINUTE 1000
 
 #define CHANCETOGOPITING 10
-#define CHANCETOGOOUT 600
+#define CHANCETOGOOUT 1000
 #define SECONDLOSTINPIT 25
 
 #define BLOCK_SIZE 4096
 
 #define INFINITY 999999
 
-#define SPEEDFACTOR 1
+#define SPEEDFACTOR 50
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
@@ -830,7 +830,7 @@ static int cmp_step_done(const void *a, const void *b){
     const int ia = *(const int *)a;
     const int ib = *(const int *)b;
 
-    return karts[ib].stepDone - karts[ia].stepDone;
+    return karts[ia].bestLapTime -karts[ib].bestLapTime;
 }
 
 
@@ -839,7 +839,9 @@ void displayPractice(void)
 
     int ii;
     int order[NUMBEROFKART];
-    for (int i = 0; i < NUMBEROFKART; ++i) order[i] = i;
+    for (int i = 0; i < NUMBEROFKART; ++i) {
+        order[i] = i;
+    }
 
 
     qsort(order, NUMBEROFKART, sizeof(int), cmp_step_done);
