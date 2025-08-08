@@ -47,7 +47,7 @@ typedef struct kart {
     float s1, s2, s3;
     float bs1, bs2, bs3;
     int stepDone;
-    bool isOut;
+    int isOut;
 } Kart;
 
 
@@ -57,20 +57,12 @@ Kart karts[NUMBEROFKART];
 
 
 typedef enum enumRaceType {
-    race_ERROR,
-    race_P1,
-    race_P2,
-    race_P3,
-    race_Q1_SPRINT,
-    race_Q2_SPRINT,
-    race_Q3_SPRINT,
-    race_SPRINT,
-    race_Q1_GP,
-    race_Q2_GP,
-    race_Q3_GP,
-    race_GP,
-    race_FINISHED,
-    race_MAX
+    Essaie1,//friday//60
+    Essaie2,//60
+    Essaie3,//60
+    Qualif1,
+    Qualif2,
+
   } RaceType;
 
 
@@ -182,7 +174,7 @@ int init(void) {
 
         karts[i].lapNbr      = 0;
        karts[i].lapTime = karts[i].bestLapTime = INFINITY;
-       karts[i].isOut       = false;
+       karts[i].isOut       =0;
        karts[i].isPitting   = 0;
        karts[i].s1 = karts[i].s2 = karts[i].s3 = 0;
        karts[i].bs1 = karts[i].bs2 = karts[i].bs3 = INFINITY;
@@ -281,10 +273,14 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
 
     //printf("number of lap that will be done --> %i\n\n\n",numberOfTour);
 
+    karts[id].lapTime=false;
 
-    while (karts[id].lapNbr) {
+
+    while (karts[id].lapNbr && !karts[id].isOut) {
         //printf("aaaaaaaaaaaaaaaaaaaa");
         //printf("enfant --> %f\n",((*data).best_lap));
+
+
 
         karts[id].s1 = 0;
         karts[id].s2 = 0;
@@ -423,6 +419,12 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
         }
         //printf("🥳🥳LAP COMPLETED ! left--> %i\n\n\n",numberOfTour);
         karts[id].lapNbr--;
+        //
+        // if (getRandomTime(1, 10) == 1) {
+        //     karts[id].isOut = true;
+        //     write(fd[1], &karts[id], sizeof(karts[id]));
+        // }
+
 
     }
 
@@ -848,7 +850,7 @@ void displayPractice(void)
 
     for (int i = 0; i < NUMBEROFKART; ++i) {
         ii = order[i];
-        printf("%-3d | %-3d | %-20s | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %-5d | %-5s | %-35s\n",
+        printf("%-3d | %-3d | %-20s | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %-5d | %-5s | %-5s | %-35s\n",
             i+1,
                currentRacers[ii].number,
                currentRacers[ii].name,
@@ -861,6 +863,7 @@ void displayPractice(void)
                karts[ii].bestLapTime / 1000.0,
                karts[ii].lapNbr,
                karts[ii].isPitting ? "🛠️" : "🟢",
+               karts[ii].isOut ? "❌" : "🏎️",
                currentRacers[ii].team);
     }
 
