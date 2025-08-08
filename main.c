@@ -400,7 +400,7 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
                     karts[id].lapTime += realtime;
                     if (realtime < karts[id].bs3) {
                         karts[id].bs3 = realtime;
-                        (*data).sector_best_car_id[2] = id;
+
                     }
 
                     sem_wait(&((*data).semaphore[2]));
@@ -767,10 +767,12 @@ int speedfactorchanger(void) {
 
 
     char *choices[] = {
-        "1. 1x speed (défault)",
-        "2. 2x speed (fast)",
-        "3. 3x speed (very fast)",
-        "4. 5x speed (lighning speed)",
+        "1. 1x speed (normal very very boring)",
+        "2. 2x speed (a bit faster but still very boring)",
+        "3. 5x speed (faster but still boring)",
+        "4. 10x speed ('''fast''')",
+        "5. 50x speed (fast)",
+        "6. 100x speed (very fast)",
     };
 
     int highlight = 0; // position
@@ -780,7 +782,7 @@ int speedfactorchanger(void) {
     while (1) {
         clear();
         printLogo();
-        mvprintw(9, 2, "Please make a selection\n"); //x,y + txt to show
+        mvprintw(9, 2, "Please select the speed\n"); //x,y + txt to show
 
         for (int i = 0; i < sizeof(choices) / sizeof(choices[0]); i++) {
             if (i == highlight) {
@@ -815,11 +817,24 @@ int speedfactorchanger(void) {
 
     endwin();
 
-    choice++;
+    switch (choice) {
+        case 0:
+            return 1;
+        case 1:
+            return 2;
+        case 2:
+            return 5;
+        case 3:
+            return 10;
+        case 4:
+            return 50;
+        case 5:
+            return 100;
+    }
 
-    if (choice == 4){choice =5;}
 
-    return choice;
+
+    return 1;
 }
 
 
@@ -1103,15 +1118,15 @@ int mainMenu(void) {
 
     switch (choice) {
         case 0:
+            //pommedeterre
             setGPname();
             createAfile();
             options.special = weekendTypeSelection();
             options.trackNumber = trackSelection();
-            //options.speedfactor = speedfactorchanger();
-            //changeDriverTheme(&currentRacers);
+            options.speedfactor = speedfactorchanger();
+            changeDriverTheme(&currentRacers);
             animation("Practice");
-
-            options.speedfactor = SPEEDFACTOR;
+            //options.speedfactor = SPEEDFACTOR;
 
             lauchTheEvent();
 
