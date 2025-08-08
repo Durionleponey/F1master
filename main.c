@@ -825,6 +825,50 @@ int speedfactorchanger(void) {
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
+int saveEvent(void) {
+
+    char filepath[100];
+    snprintf(filepath, sizeof(filepath), "f1Master/%s", options.gpname);
+
+    FILE *file = fopen(filepath,"a");
+
+    if (file == NULL) {
+        perror("fopen");
+    }
+
+
+
+
+
+}
+
+
+
+
+/*--------------------------------------------------------------------------------------------------------------------*/
+
+int createAfile(void) {
+
+    system("mkdir f1Master");
+
+    char filepath[100];
+    snprintf(filepath, sizeof(filepath), "f1Master/%s", options.gpname);
+
+    FILE *file = fopen(filepath,"w");
+
+    if (file == NULL) {
+        perror("errrrrror");
+    }else {
+
+        fclose(file);
+
+    }
+
+}
+
+
+/*--------------------------------------------------------------------------------------------------------------------*/
+
 
 static int cmp_step_done(const void *a, const void *b){
     const int ia = *(const int *)a;
@@ -1008,13 +1052,10 @@ int mainMenu(void) {
 
     char *choices[] = {
         "1. Start a new GP Week-end",
-        "2. Continue the current weekend",
+        "2. Continue a weekend",
         "3. Show the result for the current weekend",
-        "4. Show the result for all weekends",
-        "5. Show tracks",
-        "6. Show current loaded racers",
-        "7. [FUN] Change racers name",
-        "8. [TIME SAVING] Speed factor",
+        "4. Show tracks",
+        "5. Show current loaded racers",
         "99. Exit"
     };
 
@@ -1062,7 +1103,8 @@ int mainMenu(void) {
 
     switch (choice) {
         case 0:
-            //setGPname();
+            setGPname();
+            createAfile();
             options.special = weekendTypeSelection();
             options.trackNumber = trackSelection();
             //options.speedfactor = speedfactorchanger();
@@ -1078,24 +1120,14 @@ int mainMenu(void) {
         case 2:
             break;
         case 3:
-            break;
-        case 4:
             showAllTracks();
             mainMenu();
             break;
-        case 5:
+        case 4:
             showAllDrivers(currentRacers);
             mainMenu();
             break;
-        case 6:
-            changeDriverTheme(&currentRacers);
-            mainMenu();
-            break;
-        case 7:
-            options.speedfactor = speedfactorchanger();
-            mainMenu();
-            return 0;
-        case 8:
+        case 5:
             printf("byebye!\n");
             return 0;
 
