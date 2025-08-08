@@ -866,6 +866,7 @@ void displayPractice(void)
                karts[ii].isOut ? "❌" : "🏎️",
                currentRacers[ii].team);
     }
+    //
 
     printf("\n");
     printf("best S1: %8.3f\" by %s\n",((*data).sector_best[0]/1000),currentRacers[(*data).sector_best_car_id[0]].name);
