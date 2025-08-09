@@ -30,6 +30,10 @@
 #define SECOND_PER_MINUTE 60
 #define TIME_FOR_PRACTICE 60
 
+#define TIME_FOR_QUALIF1 18
+#define TIME_FOR_QUALIF2 15
+#define TIME_FOR_QUALIF3 12
+
 #define CHANCETOGOPITING 10
 #define CHANCETOGOOUT 1000
 #define SECONDLOSTINPIT 25
@@ -94,6 +98,7 @@ typedef struct structEventBest{
     float best_lap;
     int best_lap_car_id;
     int time_left;
+    int qualificationElimineted[10];
     sem_t semaphore[4];
 
 } EventBest;
@@ -134,6 +139,29 @@ EventBest *data;
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
+int resetChildAndMemory(void) {
+
+    (*data).best_lap=INFINITY;//sorry but (*data) it's more logic for me
+    (*data).sector_best[0]=INFINITY;
+    (*data).sector_best[1]=INFINITY;
+    (*data).sector_best[2]=INFINITY;
+
+
+    for (int i = 0; i < NUMBEROFKART; ++i) {
+
+        karts[i].lapNbr      = 0;
+        karts[i].lapTime = karts[i].bestLapTime = INFINITY;
+        karts[i].isOut       =0;
+        karts[i].isPitting   = 0;
+        karts[i].s1 = karts[i].s2 = karts[i].s3 = 0;
+        karts[i].bs1 = karts[i].bs2 = karts[i].bs3 = INFINITY;
+        karts[i].stepDone    = 0;
+        karts[i].piloteNumber = currentRacers[i].number;
+    }
+
+
+
+}
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -908,6 +936,30 @@ int createAfile(void) {
     }
 
 }
+/*--------------------------------------------------------------------------------------------------------------------*/
+
+int setTimeForTherace() {
+
+    switch (options.raceType) {
+        case Essaie1:
+        case Essaie2:
+        case Essaie3:
+            (*data).time_left = TIME_FOR_PRACTICE * SECOND_PER_MINUTE;
+            break;
+        case Qualif1:
+            (*data).time_left = TIME_FOR_QUALIF1 * SECOND_PER_MINUTE;
+            break;
+        case Qualif2:
+            (*data).time_left = TIME_FOR_QUALIF2 * SECOND_PER_MINUTE;
+            break;
+        case Qualif3:
+            (*data).time_left = TIME_FOR_QUALIF3 * SECOND_PER_MINUTE;
+            break;
+
+    }
+    return 0;
+};
+
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -998,6 +1050,9 @@ void reap_children_nonblock(void) {
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 int lauchTheEvent(void) {
+
+    resetChildAndMemory();
+    setTimeForTherace();
 
     int readytosave = 0;
 
@@ -1156,7 +1211,7 @@ int mainMenu(void) {
     char *choices[] = {
         "1. Start a new GP Week-end",
         "2. Continue a weekend",
-        "3. Show the result for the current weekend",
+        "3. Show the result a weekend",
         "4. Show tracks",
         "5. Show current loaded racers",
         "99. Exit"
@@ -1208,31 +1263,53 @@ int mainMenu(void) {
         case 0:
             //pommedeterre
             //setGPname();
-            strcpy(options.gpname, "robin");
+            strcpy(options.gpname, "robin");//to kick
             createAfile();
-            options.raceType = Essaie1;
             //options.special = weekendTypeSelection();
-            options.special=1;
+            options.special=1;//to kick
             saveEventType();
             //options.trackNumber = trackSelection();
-            options.laps = 30;
+            options.laps = 30;//to kick
             //options.speedfactor = speedfactorchanger();
             options.speedfactor = 150;
             //changeDriverTheme(&currentRacers);
             //animation("Practice");
-            (*data).time_left = TIME_FOR_PRACTICE * SECOND_PER_MINUTE;
             //options.speedfactor = SPEEDFACTOR;
+            //(*data).time_left = TIME_FOR_PRACTICE * SECOND_PER_MINUTE;
+
+            options.raceType = Essaie1;
             lauchTheEvent();
 
+
             options.raceType = Essaie2;
+            lauchTheEvent();
 
 
+            options.raceType = Essaie3;
+            lauchTheEvent();
 
-            while (1) {}
+            options.raceType = Qualif1;
+            lauchTheEvent();
+
+            options.raceType = Qualif2;
+            lauchTheEvent();
+
+            options.raceType = Qualif3;
+            lauchTheEvent();
+
+            while (1) {
+                sleep(2);
+                printf("a");
+            }
 
          case 1:
+            //loadAGP();
+            mainMenu();
             break;
         case 2:
+            //displayResultOfAGP();
+            showAllTracks();
+            mainMenu();
             break;
         case 3:
             showAllTracks();
@@ -1252,10 +1329,6 @@ int mainMenu(void) {
 
     return 0;
 }
-
-
-/*--------------------------------------------------------------------------------------------------------------------*/
-
 
 
 
