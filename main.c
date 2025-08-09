@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <poll.h>    // poll() pour surveiller 20 pipes
 #include <semaphore.h>
+#include <sys/wait.h>
 
 
 
@@ -241,7 +242,7 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
     karts[id].lapTime=INFINITY;
 
 
-    while (karts[id].lapNbr && !karts[id].isOut) {
+    while (karts[id].lapNbr && !karts[id].isOut && (*data).time_left) {
         //printf("aaaaaaaaaaaaaaaaaaaa");
         //printf("enfant --> %f\n",((*data).best_lap));
 
@@ -395,6 +396,8 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
 
     //printf("race complete!");
     close(fd[1]);
+
+    return 0;
 
 
 
@@ -921,12 +924,25 @@ void displayPractice(void)
 
 
     if (!(*data).time_left) {
-
+        printf("💾💾💾💾💾/n");
         saveEvent(order);
+
 
     }
 
 
+
+}
+
+/*--------------------------------------------------------------------------------------------------------------------*/
+
+
+void reap_children_nonblock(void) {
+    int status;
+    pid_t pid;
+    /* Récolte tous les enfants terminés sans bloquer */
+    while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
+    }
 }
 
 
@@ -939,6 +955,7 @@ int lauchTheEvent(void) {
     //while (1) {}
 
     int fd[NUMBEROFKART][2];
+
 
 
 
@@ -973,7 +990,10 @@ int lauchTheEvent(void) {
 
         //parent
 
+
+
         close(fd[i][1]);
+
 
 
     }
@@ -996,13 +1016,17 @@ int lauchTheEvent(void) {
         while ((*data).time_left) {
             sleep((1));
             (*data).time_left-=(1*options.speedfactor);
+
+            if ((*data).time_left < 0) {
+                (*data).time_left == 0;
+            }
         }
 
     }
 
 
 
- while (1)
+ while ((*data).time_left)
 {
     for (int i = 0; i < NUMBEROFKART; ++i) {
         fcntl(fd[i][0], F_SETFL, O_NONBLOCK);
@@ -1040,14 +1064,15 @@ int lauchTheEvent(void) {
         }
 
 
-
+        reap_children_nonblock();
         displayPractice();
     }
-}
+}//
 
 
 
     //genTimeCore(&options);
+        displayPractice();
     close(fd[0]);
 
 }
