@@ -11,6 +11,7 @@
 #include <poll.h>    // poll() pour surveiller 20 pipes
 #include <semaphore.h>
 #include <sys/wait.h>
+#include <iso646.h>
 
 
 
@@ -67,6 +68,7 @@ typedef enum enumRaceType {
     Essaie3,//60
     Qualif1,
     Qualif2,
+    Qualif3,
 
   } RaceType;
 
@@ -234,8 +236,21 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
 
     if (pParms->special){}
 
+    int substractTour =1;
 
-    karts[id].lapNbr=pParms->laps;
+    switch (options.raceType) {
+        case Essaie1:
+        case Essaie2:
+        case Essaie3:
+        case Qualif1:
+        case Qualif2:
+        case Qualif3:
+            karts[id].lapNbr = INFINITY;
+            substractTour =0;
+            break;
+    }
+
+    //karts[id].lapNbr=pParms->laps;
 
     //printf("number of lap that will be done --> %i\n\n\n",numberOfTour);
 
@@ -384,7 +399,8 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
 
         }
         //printf("🥳🥳LAP COMPLETED ! left--> %i\n\n\n",numberOfTour);
-        karts[id].lapNbr--;
+        if (substractTour){karts[id].lapNbr--;}
+
         //
         if (getRandomTime(1, CHANCETOGOOUT) == 1) {
             karts[id].isOut = true;
@@ -918,7 +934,7 @@ void displayPractice(int readytosave)
     printf("\033[H\033[J");
 
     printf("%-3s |%-4s | %-20s | %-9s | %-9s | %-9s | %-9s | %-9s | %-9s | %-9s | %-9s | %-5s | %-2s | %-1s\n",
-           "#", "Num", "Pilote", "S1", "S2", "S3", "BS1", "BS2", "BS3", "BLaps", "TDiff", "Laps","Pit","Run");
+           "#", "Num", "Pilote", "S1", "S2", "S3", "BS1", "BS2", "BS3", "BLaps", "TDiff", "Laps","Pit","Crash");
     puts("-------------------------------------------------------------------------------------------------------------------------------------------------------");
 
     for (int i = 0; i < NUMBEROFKART; ++i) {
@@ -1194,6 +1210,7 @@ int mainMenu(void) {
             //setGPname();
             strcpy(options.gpname, "robin");
             createAfile();
+            options.raceType = Essaie1;
             //options.special = weekendTypeSelection();
             options.special=1;
             saveEventType();
@@ -1203,12 +1220,13 @@ int mainMenu(void) {
             options.speedfactor = 150;
             //changeDriverTheme(&currentRacers);
             //animation("Practice");
-
-
             (*data).time_left = TIME_FOR_PRACTICE * SECOND_PER_MINUTE;
             //options.speedfactor = SPEEDFACTOR;
-
             lauchTheEvent();
+
+            options.raceType = Essaie2;
+
+
 
             while (1) {}
 
