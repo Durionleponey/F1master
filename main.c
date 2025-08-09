@@ -450,9 +450,38 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 
-int animation(char event[]){
+int animation(){
 
-    clear();
+    char event[100];
+
+    switch (options.raceType) {
+        case Essaie1:
+            strcpy(event, "Essaie 1");
+            break;
+        case Essaie2:
+            strcpy(event, "Essaie 2");
+            break;
+        case Essaie3:
+            strcpy(event, "Essaie 3");
+            break;
+        case Qualif1:
+            strcpy(event, "Qualification 1");
+            break;
+        case Qualif2:
+            strcpy(event, "Qualification 2");
+            break;
+        case Qualif3:
+            strcpy(event, "Qualification 3");
+            break;
+    }
+
+    initscr(); // init
+    printLogo();
+    noecho(); //don't show typed char
+    curs_set(0);//cursor
+    keypad(stdscr, TRUE);
+
+
 
 
 
@@ -468,7 +497,10 @@ int start_y = (max_y - art_rows) / 2;
 int start_x = (max_x - art_cols) / 2;
 
 
-mvprintw(start_y + art_rows + 2, start_x+14, "Strating %s ..... Ready ? [Touch a key to continue] ", event);
+mvprintw(start_y + art_rows + 2, start_x+14, "Strating %s ..... Ready ? touch a key to continue.", event);
+    mvprintw(start_y + art_rows + 3, start_x+14, "Name of the Cup: %s", options.gpname);
+    mvprintw(start_y + art_rows + 4, start_x+14, "Name of the GP: %s", GP_LIST[options.trackNumber].name);
+    mvprintw(start_y + art_rows + 5, start_x+14, "Name of the track: %s", GP_LIST[options.trackNumber].circuit);
 
 
 
@@ -678,7 +710,7 @@ int setGPname(void){
 
     printLogo2();
 
-    printf("Please choose the GP name: [40 char max]\n");
+    printf("Please choose the CUP name: [40 char max]\n");
 
     printf("\n>>");
     scanf("%40s", options.gpname);
@@ -1049,7 +1081,37 @@ void reap_children_nonblock(void) {
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
+
+
+ void loadEliminated(void) {
+
+    char filepath[100];
+    snprintf(filepath, sizeof(filepath), "f1Master/%s.f1master", options.gpname);
+
+    FILE *patate = fopen(filepath, "r");
+    if (!patate) {
+        perror("🥔🥔🥔🥔🥔");
+        return;
+    }
+
+    char buffer[1024];
+
+
+    fgets(buffer, sizeof(buffer), patate);
+
+
+    printf("%s", buffer);
+
+
+
+
+
+}
+/*--------------------------------------------------------------------------------------------------------------------*/
+
 int lauchTheEvent(void) {
+
+    animation();
 
     resetChildAndMemory();
     setTimeForTherace();
@@ -1124,7 +1186,7 @@ int lauchTheEvent(void) {
             (*data).time_left-=(1*options.speedfactor);
 
             if ((*data).time_left < 0) {
-                (*data).time_left == 0;
+                (*data).time_left = 0;
             }
         }
 
@@ -1159,6 +1221,9 @@ int lauchTheEvent(void) {
                     while ((*data).time_left && (n = read(fd[i][0],
                                      &karts[i],
                                      sizeof karts[i])) == sizeof karts[i]) {
+                        if ((*data).time_left < 0) {
+                            (*data).time_left = 0;
+                        }
                     }
 
                     if (n == 0) {
@@ -1175,6 +1240,9 @@ int lauchTheEvent(void) {
         reap_children_nonblock();
         displayPractice(readytosave);
         //printf("aaaaaaaa%i\n",(*data).time_left);
+        if ((*data).time_left < 0) {
+            (*data).time_left = 0;
+        }
     }
 
 
@@ -1273,7 +1341,6 @@ int mainMenu(void) {
             //options.speedfactor = speedfactorchanger();
             options.speedfactor = 150;
             //changeDriverTheme(&currentRacers);
-            //animation("Practice");
             //options.speedfactor = SPEEDFACTOR;
             //(*data).time_left = TIME_FOR_PRACTICE * SECOND_PER_MINUTE;
 
@@ -1289,6 +1356,7 @@ int mainMenu(void) {
             lauchTheEvent();
 
             options.raceType = Qualif1;
+            loadEliminated();
             lauchTheEvent();
 
             options.raceType = Qualif2;
@@ -1298,7 +1366,8 @@ int mainMenu(void) {
             lauchTheEvent();
 
             while (1) {
-                sleep(2);
+                loadEliminated();
+                sleep(1000);
                 printf("a");
             }
 
