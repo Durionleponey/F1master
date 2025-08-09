@@ -811,13 +811,38 @@ static int cmp_step_done(const void *a, const void *b){
     return karts[ia].bestLapTime -karts[ib].bestLapTime;
 }
 
+/*--------------------------------------------------------------------------------------------------------------------*/
+
+
+
+int saveEventType() {
+
+    char filepath[100];
+    snprintf(filepath, sizeof(filepath), "f1Master/%s.f1master", options.gpname);
+
+    FILE *file = fopen(filepath,"a");
+
+    if (file == NULL) {
+        perror("fopen");
+    }
+
+    fprintf(file, "%i\n", options.special);
+
+
+
+    fclose(file);
+
+    return 0;
+}
+
+
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 int saveEvent(int top[]) {
 
     char filepath[100];
-    snprintf(filepath, sizeof(filepath), "f1Master/%s", options.gpname);
+    snprintf(filepath, sizeof(filepath), "f1Master/%s.f1master", options.gpname);
 
     FILE *file = fopen(filepath,"a");
 
@@ -826,17 +851,25 @@ int saveEvent(int top[]) {
     }
 
 
-    fprintf(file, "Nouveau tour terminé !\n");
+    for (int i = 0; i < NUMBEROFKART; ++i) {
+        fprintf(file, "%i,", currentRacers[top[i]].number);
+    }
+
+    fprintf(file,"%f,",(*data).best_lap);
+
+    for (int i = 0; i < 3; ++i) {
+        fprintf(file, "%f,",(*data).sector_best[i]);
+    }
 
 
+
+    fprintf(file, "\n");
 
 
 
     fclose(file);
-
+    return 0;
 }
-
-
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -846,7 +879,7 @@ int createAfile(void) {
     system("mkdir f1Master");
 
     char filepath[100];
-    snprintf(filepath, sizeof(filepath), "f1Master/%s", options.gpname);
+    snprintf(filepath, sizeof(filepath), "f1Master/%s.f1master", options.gpname);
 
     FILE *file = fopen(filepath,"w");
 
@@ -866,7 +899,7 @@ int createAfile(void) {
 
 
 
-void displayPractice(void)
+void displayPractice(int readytosave)
 {
 
     int ii;
@@ -923,7 +956,7 @@ void displayPractice(void)
 
 
 
-    if (!(*data).time_left) {
+    if (readytosave) {
         printf("💾💾💾💾💾/n");
         saveEvent(order);
 
@@ -949,6 +982,8 @@ void reap_children_nonblock(void) {
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 int lauchTheEvent(void) {
+
+    int readytosave = 0;
 
 
     printf("helllo\n");
@@ -1022,6 +1057,8 @@ int lauchTheEvent(void) {
             }
         }
 
+        _exit(0);
+
     }
 
 
@@ -1034,7 +1071,7 @@ int lauchTheEvent(void) {
         p[i].events = POLLIN;
     }
 
-    while (1) {
+    while ((*data).time_left) {
         sleep(1);
 
         int ready = poll(p, NUMBEROFKART, 0);
@@ -1048,7 +1085,7 @@ int lauchTheEvent(void) {
                 if (p[i].fd == -1) continue;
                 if (p[i].revents & POLLIN) {
                     ssize_t n;
-                    while ((n = read(fd[i][0],
+                    while ((*data).time_left && (n = read(fd[i][0],
                                      &karts[i],
                                      sizeof karts[i])) == sizeof karts[i]) {
                     }
@@ -1065,15 +1102,23 @@ int lauchTheEvent(void) {
 
 
         reap_children_nonblock();
-        displayPractice();
+        displayPractice(readytosave);
+        //printf("aaaaaaaa%i\n",(*data).time_left);
     }
+
+
 }//
 
 
 
+
+
+
+    readytosave =1;
     //genTimeCore(&options);
-        displayPractice();
+    displayPractice(readytosave);
     close(fd[0]);
+    return 0;
 
 }
 
@@ -1146,17 +1191,26 @@ int mainMenu(void) {
     switch (choice) {
         case 0:
             //pommedeterre
-            setGPname();
+            //setGPname();
+            strcpy(options.gpname, "robin");
             createAfile();
-            options.special = weekendTypeSelection();
-            options.trackNumber = trackSelection();
-            options.speedfactor = speedfactorchanger();
-            changeDriverTheme(&currentRacers);
-            animation("Practice");
+            //options.special = weekendTypeSelection();
+            options.special=1;
+            saveEventType();
+            //options.trackNumber = trackSelection();
+            options.laps = 30;
+            //options.speedfactor = speedfactorchanger();
+            options.speedfactor = 150;
+            //changeDriverTheme(&currentRacers);
+            //animation("Practice");
+
+
             (*data).time_left = TIME_FOR_PRACTICE * SECOND_PER_MINUTE;
             //options.speedfactor = SPEEDFACTOR;
 
             lauchTheEvent();
+
+            while (1) {}
 
          case 1:
             break;
