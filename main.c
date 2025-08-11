@@ -73,6 +73,7 @@ typedef enum enumRaceType {
     Qualif1,
     Qualif2,
     Qualif3,
+    GrandP,
 
   } RaceType;
 
@@ -276,6 +277,9 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
             karts[id].lapNbr = INFINITY;
             substractTour =0;
             break;
+        case GrandP:
+            karts[id].lapNbr=pParms->laps;
+            break;
     }
 
 
@@ -474,6 +478,9 @@ int animation(){
             break;
         case Qualif3:
             strcpy(event, "Qualification 3");
+            break;
+        case GrandP:
+            strcpy(event, "GrandPrix Race");
             break;
     }
 
@@ -989,6 +996,9 @@ int setTimeForTherace() {
         case Qualif3:
             (*data).time_left = TIME_FOR_QUALIF3 * SECOND_PER_MINUTE;
             break;
+        case GrandP:
+            (*data).time_left = 2*TIME_FOR_PRACTICE * SECOND_PER_MINUTE;
+
 
     }
     return 0;
@@ -1454,11 +1464,14 @@ int mainMenu(void) {
             lauchTheEvent();
 
             options.raceType = Qualif2;
-            options.speedfactor = 20;
 
             lauchTheEvent();
 
             options.raceType = Qualif3;
+
+            lauchTheEvent();
+
+            options.raceType = GrandP;
 
             lauchTheEvent();
 
@@ -1478,16 +1491,13 @@ int mainMenu(void) {
             showAllTracks();
             mainMenu();
             break;
+
         case 3:
-            showAllTracks();
-            mainMenu();
-            break;
-        case 4:
             showAllDrivers(currentRacers);
             mainMenu();
             break;
-        case 5:
-            printf("byebye!\n");
+        case 4:
+            printf("byebye !\n");
             return 0;
 
         default:
