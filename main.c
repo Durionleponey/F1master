@@ -1006,6 +1006,10 @@ void displayPractice(int readytosave)
 
     int ii;
     int order[NUMBEROFKART];
+
+
+
+
     for (int i = 0; i < NUMBEROFKART; ++i) {
         order[i] = i;
     }
@@ -1026,6 +1030,10 @@ void displayPractice(int readytosave)
     for (int i = 0; i < NUMBEROFKART; ++i) {
         ii = order[i];
         tdiff = (karts[ii].bestLapTime - karts[order[i-1]].bestLapTime) / 1000.0f;
+
+        if (!karts[ii].lapNbr)karts[ii].isOut = true;
+
+
         printf("%-3d | %-3d | %-20s | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %-5d | %-5s | %-5s\n",
             i+1,
                currentRacers[ii].number,
@@ -1136,6 +1144,19 @@ void reap_children_nonblock(void) {
 
 int lauchTheEvent(void) {
 
+
+    switch (options.raceType) {
+        case Qualif2:
+        case Qualif3:
+            loadQualified();
+            break;
+        default:
+            break;
+    }
+
+
+
+
     animation();
 
     resetChildAndMemory();
@@ -1148,8 +1169,15 @@ int lauchTheEvent(void) {
     //while (1) {}
 
     int fd[NUMBEROFKART][2];
+    for (int i = 0; i < NUMBEROFKART; ++i) {
+        fd[i][0] = fd[i][1] = -1;
+    }
 
     int qualifiedflag = 0;
+
+    int numberOfRunningkart = 15;
+
+    if (options.raceType == Qualif3) numberOfRunningkart = 10;
 
 
 
@@ -1161,11 +1189,12 @@ int lauchTheEvent(void) {
 
         switch (options.raceType) {
             case Qualif2:
+            case Qualif3:
 
                 int a = currentRacers[i].number;
                 printf("🥔--->%i\n",a);
 
-                for (int i=0; i<15; i++) {
+                for (int i=0; i<numberOfRunningkart; i++) {
 
 
                     printf("%i\n",(*data).qualifiedKard[i]);
@@ -1180,6 +1209,7 @@ int lauchTheEvent(void) {
 
                 }
                 break;
+
             default:
                 qualifiedflag = 1;
 
@@ -1232,9 +1262,13 @@ int lauchTheEvent(void) {
 
 
     struct pollfd p[NUMBEROFKART];
+    int pcount = 0;
     for (int i = 0; i < NUMBEROFKART; ++i) {
-        p[i].fd     = fd[i][0];
-        p[i].events = POLLIN;
+        if (fd[i][0] != -1) {
+            p[pcount].fd = fd[i][0];
+            p[pcount].events = POLLIN;
+            pcount++;
+        }
     }
 
     pid_t pidTime = fork();
@@ -1416,17 +1450,16 @@ int mainMenu(void) {
 
             options.raceType = Qualif1;
             //loadEliminated();
+            //options.speedfactor = 20;
             lauchTheEvent();
 
             options.raceType = Qualif2;
             options.speedfactor = 20;
-            loadQualified();
-            lauchTheEvent();
-            lauchTheEvent();
 
+            lauchTheEvent();
 
             options.raceType = Qualif3;
-            loadQualified();
+
             lauchTheEvent();
 
 
