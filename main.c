@@ -723,7 +723,7 @@ int setGPname(void){
 
     printLogo2();
 
-    printf("Please choose the CUP name: [40 char max]\n");
+    printf("Please choose the SAISON name: [40 char max]\n");
 
     printf("\n>>");
     scanf("%40s", options.gpname);
@@ -907,7 +907,7 @@ static int cmp_step_done(const void *a, const void *b){
 int saveEventType() {
 
     char filepath[100];
-    snprintf(filepath, sizeof(filepath), "f1Master/%s-%s.f1master", options.gpname, GP_LIST[options.trackNumber].name);
+    snprintf(filepath, sizeof(filepath), "%s/%s-%s.f1master", options.gpname, options.gpname, GP_LIST[options.trackNumber].name);
 
     FILE *file = fopen(filepath,"a");
 
@@ -931,7 +931,7 @@ int saveEventType() {
 int saveEvent(int top[]) {
 
     char filepath[100];
-    snprintf(filepath, sizeof(filepath), "f1Master/%s-%s.f1master", options.gpname, GP_LIST[options.trackNumber].name);
+    snprintf(filepath, sizeof(filepath), "%s/%s-%s.f1master", options.gpname, options.gpname, GP_LIST[options.trackNumber].name);
 
     FILE *file = fopen(filepath,"a");
 
@@ -965,10 +965,16 @@ int saveEvent(int top[]) {
 
 int createAfile(void) {
 
-    system("mkdir f1Master");
+
+    char command[100];
+
+    snprintf(command, sizeof(command), "mkdir %s", options.gpname);
+
+
+    system(command);
 
     char filepath[100];
-    snprintf(filepath, sizeof(filepath), "f1Master/%s-%s.f1master", options.gpname, GP_LIST[options.trackNumber].name);
+    snprintf(filepath, sizeof(filepath), "%s/%s-%s.f1master", options.gpname, options.gpname, GP_LIST[options.trackNumber].name);
 
     FILE *file = fopen(filepath,"w");
 
@@ -1108,7 +1114,7 @@ void reap_children_nonblock(void) {
 void loadPostion(void) {
 
     char filepath[100];
-    snprintf(filepath, sizeof(filepath), "f1Master/%s-%s.f1master", options.gpname, GP_LIST[options.trackNumber].name);
+    snprintf(filepath, sizeof(filepath), "%s/%s-%s.f1master", options.gpname, options.gpname, GP_LIST[options.trackNumber].name);
 
     FILE *patate = fopen(filepath, "r");
     if (!patate) {
@@ -1161,7 +1167,7 @@ void loadPostion(void) {
  void loadQualified(void) {
 
     char filepath[100];
-    snprintf(filepath, sizeof(filepath), "f1Master/%s-%s.f1master", options.gpname, GP_LIST[options.trackNumber].name);
+    snprintf(filepath, sizeof(filepath), "%s/%s-%s.f1master", options.gpname, options.gpname, GP_LIST[options.trackNumber].name);
 
     FILE *patate = fopen(filepath, "r");
     if (!patate) {
@@ -1489,8 +1495,8 @@ int mainMenu(void) {
     switch (choice) {
         case 0:
             //pommedeterre
-            //setGPname();
-            strcpy(options.gpname, "robin");//to kick
+            setGPname();
+            //strcpy(options.gpname, "robin");//to kick
             options.trackNumber = trackSelection();
             createAfile();
             //options.special = weekendTypeSelection();
