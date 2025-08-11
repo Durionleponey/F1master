@@ -98,7 +98,7 @@ typedef struct structEventBest{
     float best_lap;
     int best_lap_car_id;
     int time_left;
-    int qualifiedKard[10];
+    int qualifiedKard[15];
     sem_t semaphore[4];
 
 } EventBest;
@@ -257,7 +257,7 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
   int sector =0;
     float timeinpit;
 
-    printProgramOptions(&options);
+    //printProgramOptions(&options);
 
 
 
@@ -277,6 +277,8 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
             substractTour =0;
             break;
     }
+
+
 
     //karts[id].lapNbr=pParms->laps;
 
@@ -1057,7 +1059,7 @@ void displayPractice(int readytosave)
 
 
     if (readytosave) {
-        printf("💾💾💾💾💾/n");
+        //printf("💾💾💾💾💾/n");
         saveEvent(order);
 
 
@@ -1100,13 +1102,13 @@ void reap_children_nonblock(void) {
     //fgets(buffer, sizeof(buffer), patate);//read first line of the file
 
     int i = 0;
-    int numberOfF1toload = 10;
+    int numberOfF1toload = 15;
 
 
     int stopReading = 4;//lign 4 in the .F1master is the result of q1
 
 
-    if (options.raceType == Qualif3) {stopReading = 5;numberOfF1toload = 5;} //result of q2
+    if (options.raceType == Qualif3) {stopReading = 5;numberOfF1toload = 10;} //result of q2
 
     while (fgets(buffer, sizeof(buffer), patate)) {
         if (i == stopReading) {
@@ -1147,10 +1149,45 @@ int lauchTheEvent(void) {
 
     int fd[NUMBEROFKART][2];
 
+    int qualifiedflag = 0;
+
 
 
 
     for (int i =0; i<NUMBEROFKART;i++) {
+        qualifiedflag = 0;
+
+
+
+        switch (options.raceType) {
+            case Qualif2:
+
+                int a = currentRacers[i].number;
+                printf("🥔--->%i\n",a);
+
+                for (int i=0; i<15; i++) {
+
+
+                    printf("%i\n",(*data).qualifiedKard[i]);
+
+
+
+                    if ((a) == (*data).qualifiedKard[i]) {
+                        qualifiedflag = 1;
+                        break;
+
+                    }
+
+                }
+                break;
+            default:
+                qualifiedflag = 1;
+
+        }
+
+        printf("%i\n",qualifiedflag);
+
+        if (!qualifiedflag){continue;}
 
         pipe(fd[i]);
 
@@ -1170,7 +1207,7 @@ int lauchTheEvent(void) {
 
 
         if (pid == 0) {
-            printf("kidsss\n");
+            //printf("kidsss\n");
             close(fd[i][0]);
 
 
@@ -1302,9 +1339,8 @@ int mainMenu(void) {
     char *choices[] = {
         "1. Start a new GP Week-end",
         "2. Continue a weekend",
-        "3. Show the result a weekend",
-        "4. Show tracks",
-        "5. Show current loaded racers",
+        "3. Show tracks",
+        "4. Show current loaded racers",
         "99. Exit"
     };
 
@@ -1383,27 +1419,22 @@ int mainMenu(void) {
             lauchTheEvent();
 
             options.raceType = Qualif2;
+            options.speedfactor = 20;
             loadQualified();
+            lauchTheEvent();
+            lauchTheEvent();
 
-            for (int i = 0; i < 10; i++) {
+
+            options.raceType = Qualif3;
+            loadQualified();
+            lauchTheEvent();
+
+
+            for (int i = 0; i < 15; i++) {
 
                 printf("-->\n%i",(*data).qualifiedKard[i]);
             }
 
-            while (1) {}
-
-
-
-            lauchTheEvent();
-            options.raceType = Qualif3;
-            loadEliminated();
-            lauchTheEvent();
-
-            while (1) {
-                loadEliminated();
-                sleep(1000);
-                printf("a");
-            }
 
          case 1:
             //loadAGP();
