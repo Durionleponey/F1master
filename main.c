@@ -108,6 +108,10 @@ typedef struct structEventBest{
 
 
 
+int finalPostion[20];
+
+
+
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -903,7 +907,7 @@ static int cmp_step_done(const void *a, const void *b){
 int saveEventType() {
 
     char filepath[100];
-    snprintf(filepath, sizeof(filepath), "f1Master/%s.f1master", options.gpname);
+    snprintf(filepath, sizeof(filepath), "f1Master/%s-%s.f1master", options.gpname, GP_LIST[options.trackNumber].name);
 
     FILE *file = fopen(filepath,"a");
 
@@ -927,7 +931,7 @@ int saveEventType() {
 int saveEvent(int top[]) {
 
     char filepath[100];
-    snprintf(filepath, sizeof(filepath), "f1Master/%s.f1master", options.gpname);
+    snprintf(filepath, sizeof(filepath), "f1Master/%s-%s.f1master", options.gpname, GP_LIST[options.trackNumber].name);
 
     FILE *file = fopen(filepath,"a");
 
@@ -964,7 +968,7 @@ int createAfile(void) {
     system("mkdir f1Master");
 
     char filepath[100];
-    snprintf(filepath, sizeof(filepath), "f1Master/%s.f1master", options.gpname);
+    snprintf(filepath, sizeof(filepath), "f1Master/%s-%s.f1master", options.gpname, GP_LIST[options.trackNumber].name);
 
     FILE *file = fopen(filepath,"w");
 
@@ -1101,12 +1105,63 @@ void reap_children_nonblock(void) {
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
+void loadPostion(void) {
+
+    char filepath[100];
+    snprintf(filepath, sizeof(filepath), "f1Master/%s-%s.f1master", options.gpname, GP_LIST[options.trackNumber].name);
+
+    FILE *patate = fopen(filepath, "r");
+    if (!patate) {
+        perror("🥔🥔🥔🥔🥔");
+        return;
+    }
+
+    char buffer[1024];
+
+
+    //fgets(buffer, sizeof(buffer), patate);//read first line of the file
+
+
+    int numberOfF1toloadByLigne = 20;
+    int stopReading = 4;//lign 4 in the .F1master is the result of q1
+
+    int i = 1;
+
+
+    while (fgets(buffer, sizeof(buffer), patate)) {
+        if (i == stopReading) {
+            int k = 0;
+            char *tok = strtok(buffer, ",");
+            while (tok && k < numberOfF1toloadByLigne) {
+
+                if (k>=15) {
+                    finalPostion[k-1] = (int)strtol(tok, NULL, 10);
+
+
+                }
+                tok = strtok(NULL, ",");
+                k++;
+            }
+
+            break;
+
+        }
+        i++;
+
+    }
+
+
+    //printf("%s", buffer);
+
+
+}
+/*--------------------------------------------------------------------------------------------------------------------*/
 
 
  void loadQualified(void) {
 
     char filepath[100];
-    snprintf(filepath, sizeof(filepath), "f1Master/%s.f1master", options.gpname);
+    snprintf(filepath, sizeof(filepath), "f1Master/%s-%s.f1master", options.gpname, GP_LIST[options.trackNumber].name);
 
     FILE *patate = fopen(filepath, "r");
     if (!patate) {
@@ -1383,8 +1438,9 @@ int mainMenu(void) {
     char *choices[] = {
         "1. Start a new GP Week-end",
         "2. Continue a weekend",
-        "3. Show tracks",
-        "4. Show current loaded racers",
+        "3. Show results for a Saison",
+        "4. Show tracks",
+        "5. Show current loaded racers",
         "99. Exit"
     };
 
@@ -1435,11 +1491,11 @@ int mainMenu(void) {
             //pommedeterre
             //setGPname();
             strcpy(options.gpname, "robin");//to kick
+            options.trackNumber = trackSelection();
             createAfile();
             //options.special = weekendTypeSelection();
             options.special=1;//to kick
             saveEventType();
-            //options.trackNumber = trackSelection();
             options.laps = 30;//to kick
             //options.speedfactor = speedfactorchanger();
             options.speedfactor = 250;
@@ -1473,10 +1529,20 @@ int mainMenu(void) {
 
             options.raceType = GrandP;
 
+            loadPostion();
+
+
+            for (int i = 0; i < 20; i++) {
+
+                printf("-->\n%i",finalPostion[i]);
+                sleep(1);
+            }
+
+
             lauchTheEvent();
 
 
-            for (int i = 0; i < 15; i++) {
+            for (int i = 0; i < 20; i++) {
 
                 printf("-->\n%i",(*data).qualifiedKard[i]);
             }
@@ -1486,17 +1552,22 @@ int mainMenu(void) {
             //loadAGP();
             mainMenu();
             break;
+
         case 2:
+            showAllDrivers(currentRacers);
+            mainMenu();
+            break;
+        case 3:
             //displayResultOfAGP();
             showAllTracks();
             mainMenu();
             break;
 
-        case 3:
+        case 4:
             showAllDrivers(currentRacers);
             mainMenu();
             break;
-        case 4:
+        case 5:
             printf("byebye !\n");
             return 0;
 
