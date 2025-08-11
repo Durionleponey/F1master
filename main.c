@@ -98,7 +98,7 @@ typedef struct structEventBest{
     float best_lap;
     int best_lap_car_id;
     int time_left;
-    int qualificationElimineted[10];
+    int qualifiedKard[10];
     sem_t semaphore[4];
 
 } EventBest;
@@ -1083,7 +1083,7 @@ void reap_children_nonblock(void) {
 
 
 
- void loadEliminated(void) {
+ void loadQualified(void) {
 
     char filepath[100];
     snprintf(filepath, sizeof(filepath), "f1Master/%s.f1master", options.gpname);
@@ -1097,13 +1097,36 @@ void reap_children_nonblock(void) {
     char buffer[1024];
 
 
-    fgets(buffer, sizeof(buffer), patate);
+    //fgets(buffer, sizeof(buffer), patate);//read first line of the file
+
+    int i = 0;
+    int numberOfF1toload = 10;
 
 
-    printf("%s", buffer);
+    int stopReading = 4;//lign 4 in the .F1master is the result of q1
 
 
+    if (options.raceType == Qualif3) {stopReading = 5;numberOfF1toload = 5;} //result of q2
 
+    while (fgets(buffer, sizeof(buffer), patate)) {
+        if (i == stopReading) {
+            int k = 0;
+            char *tok = strtok(buffer, ",");
+            while (tok && k < numberOfF1toload) {
+                (*data).qualifiedKard[k++] = (int)strtol(tok, NULL, 10);
+                tok = strtok(NULL, ",");
+            }
+
+
+            break;
+
+        }
+        i++;
+
+    }
+
+
+    //printf("%s", buffer);
 
 
 }
@@ -1339,7 +1362,7 @@ int mainMenu(void) {
             //options.trackNumber = trackSelection();
             options.laps = 30;//to kick
             //options.speedfactor = speedfactorchanger();
-            options.speedfactor = 150;
+            options.speedfactor = 250;
             //changeDriverTheme(&currentRacers);
             //options.speedfactor = SPEEDFACTOR;
             //(*data).time_left = TIME_FOR_PRACTICE * SECOND_PER_MINUTE;
@@ -1356,13 +1379,24 @@ int mainMenu(void) {
             lauchTheEvent();
 
             options.raceType = Qualif1;
-            loadEliminated();
+            //loadEliminated();
             lauchTheEvent();
 
             options.raceType = Qualif2;
-            lauchTheEvent();
+            loadQualified();
 
+            for (int i = 0; i < 10; i++) {
+
+                printf("-->\n%i",(*data).qualifiedKard[i]);
+            }
+
+            while (1) {}
+
+
+
+            lauchTheEvent();
             options.raceType = Qualif3;
+            loadEliminated();
             lauchTheEvent();
 
             while (1) {
