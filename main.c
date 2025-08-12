@@ -907,7 +907,7 @@ static int cmp_step_done(const void *a, const void *b){
 int saveEventType() {
 
     char filepath[100];
-    snprintf(filepath, sizeof(filepath), "%s/%s-%s.f1master", options.gpname, options.gpname, GP_LIST[options.trackNumber].name);
+    snprintf(filepath, sizeof(filepath), "F1master/%s/%s-%s.f1master", options.gpname, options.gpname, GP_LIST[options.trackNumber].name);
 
     FILE *file = fopen(filepath,"a");
 
@@ -931,7 +931,7 @@ int saveEventType() {
 int saveEvent(int top[]) {
 
     char filepath[100];
-    snprintf(filepath, sizeof(filepath), "%s/%s-%s.f1master", options.gpname, options.gpname, GP_LIST[options.trackNumber].name);
+    snprintf(filepath, sizeof(filepath), "F1master/%s/%s-%s.f1master", options.gpname, options.gpname, GP_LIST[options.trackNumber].name);
 
     FILE *file = fopen(filepath,"a");
 
@@ -968,13 +968,15 @@ int createAfile(void) {
 
     char command[100];
 
-    snprintf(command, sizeof(command), "mkdir %s", options.gpname);
+    system("mkdir F1master");
+
+    snprintf(command, sizeof(command), "mkdir F1master/%s", options.gpname);
 
 
     system(command);
 
     char filepath[100];
-    snprintf(filepath, sizeof(filepath), "%s/%s-%s.f1master", options.gpname, options.gpname, GP_LIST[options.trackNumber].name);
+    snprintf(filepath, sizeof(filepath), "F1master/%s/%s-%s.f1master", options.gpname, options.gpname, GP_LIST[options.trackNumber].name);
 
     FILE *file = fopen(filepath,"w");
 
@@ -1114,7 +1116,7 @@ void reap_children_nonblock(void) {
 void loadPostion(void) {
 
     char filepath[100];
-    snprintf(filepath, sizeof(filepath), "%s/%s-%s.f1master", options.gpname, options.gpname, GP_LIST[options.trackNumber].name);
+    snprintf(filepath, sizeof(filepath), "F1master/%s/%s-%s.f1master", options.gpname, options.gpname, GP_LIST[options.trackNumber].name);
 
     FILE *patate = fopen(filepath, "r");
     if (!patate) {
@@ -1167,7 +1169,7 @@ void loadPostion(void) {
  void loadQualified(void) {
 
     char filepath[100];
-    snprintf(filepath, sizeof(filepath), "%s/%s-%s.f1master", options.gpname, options.gpname, GP_LIST[options.trackNumber].name);
+    snprintf(filepath, sizeof(filepath), "F1master/%s/%s-%s.f1master", options.gpname, options.gpname, GP_LIST[options.trackNumber].name);
 
     FILE *patate = fopen(filepath, "r");
     if (!patate) {
@@ -1236,7 +1238,7 @@ int lauchTheEvent(void) {
     int readytosave = 0;
 
 
-    printf("helllo\n");
+    //printf("helllo\n");
     //while (1) {}
 
     int fd[NUMBEROFKART][2];
@@ -1263,7 +1265,7 @@ int lauchTheEvent(void) {
             case Qualif3:
 
                 int a = currentRacers[i].number;
-                printf("🥔--->%i\n",a);
+                //printf("🥔--->%i\n",a);
 
                 for (int i=0; i<numberOfRunningkart; i++) {
 
@@ -1286,7 +1288,7 @@ int lauchTheEvent(void) {
 
         }
 
-        printf("%i\n",qualifiedflag);
+        //printf("%i\n",qualifiedflag);
 
         if (!qualifiedflag){continue;}
 
