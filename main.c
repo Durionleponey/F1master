@@ -1619,6 +1619,60 @@ int eventLauncher(void) {
 }
 
 
+
+/*--------------------------------------------------------------------------------------------------------------------*/
+
+
+int setRacetype(void) {
+
+
+    char filepath[100];
+    snprintf(filepath, sizeof(filepath), "F1master/%s/%s-%s.f1master", options.gpname, options.gpname, GP_LIST[options.trackNumber].name);
+
+    FILE *patate = fopen(filepath, "r");
+    if (!patate) {
+        perror("🥔🥔🥔🥔🥔");
+        return;
+    }
+
+    char buffer[1024];
+
+
+    //fgets(buffer, sizeof(buffer), patate);//read first line of the file
+
+    int i = 0;
+
+
+
+
+    while (fgets(buffer, sizeof(buffer), patate)) {
+
+        i++;
+
+
+
+        }
+
+
+    fclose(patate);
+
+
+
+    return i-1;
+
+    }
+
+
+
+
+    //printf("%s", buffer);
+
+
+
+
+
+
+
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 int mainMenu(void) {
@@ -1707,12 +1761,26 @@ int mainMenu(void) {
 
 
          case 1:
-            //loadAGP();
+            //pommedeterre
+            setGPname();
+            //strcpy(options.gpname, "robin");//to kick
+            options.trackNumber = trackSelection();
+            options.special=1;//to kick
+            //options.laps = 30;//to kick
+            options.speedfactor = speedfactorchanger();
+            //options.speedfactor = 200;
+            changeDriverTheme(&currentRacers);
+            //options.speedfactor = SPEEDFACTOR;
+            //(*data).time_left = TIME_FOR_PRACTICE * SECOND_PER_MINUTE;
+
+            options.raceType = setRacetype();
+
+            eventLauncher();
             mainMenu();
             break;
 
         case 2:
-            showAllDrivers(currentRacers);
+            printf("comming soon... meaby...");
             mainMenu();
             break;
         case 3:
