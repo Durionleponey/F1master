@@ -1290,6 +1290,8 @@ void loadPostion(void) {
 
     }
 
+    fclose(patate);
+
 
     //printf("%s", buffer);
 
@@ -1661,6 +1663,9 @@ int setRacetype(void) {
     return i-1;
 
     }
+
+
+
 
 
 
