@@ -1565,6 +1565,60 @@ int lauchTheEvent(void) {
 }
 
 
+int eventLauncher(void) {
+
+
+    switch (options.raceType) {
+        case Essaie1:
+            options.raceType = Essaie1;
+            lauchTheEvent();
+        case Essaie2:
+            options.raceType = Essaie2;
+            lauchTheEvent();
+        case Essaie3:
+            options.raceType = Essaie3;
+            lauchTheEvent();
+        case Qualif1:
+            options.raceType = Qualif1;
+            //loadEliminated();
+            //options.speedfactor = 20;
+            lauchTheEvent();
+        case Qualif2:
+            options.raceType = Qualif2;
+
+            lauchTheEvent();
+        case Qualif3:
+            options.raceType = Qualif3;
+
+            lauchTheEvent();
+        case GrandP:
+            options.raceType = GrandP;
+            loadPostion();
+
+
+
+            printf("Final starting position:\n\n");
+
+
+            for (int i = 0; i < 20; i++) {
+
+                printf("%i-->%i\n",i,finalPostion[i]);
+                sleep(1);
+            }
+            //
+            //
+            // while (1){}
+
+
+
+            lauchTheEvent();
+
+
+
+    }
+}
+
+
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 int mainMenu(void) {
@@ -1647,66 +1701,9 @@ int mainMenu(void) {
             //options.speedfactor = SPEEDFACTOR;
             //(*data).time_left = TIME_FOR_PRACTICE * SECOND_PER_MINUTE;
 
-            switch (options.raceType) {
-                case Essaie1:
-                    options.raceType = Essaie1;
-                    lauchTheEvent();
-                case Essaie2:
-                    options.raceType = Essaie2;
-                    lauchTheEvent();
-                case Essaie3:
-                    options.raceType = Essaie3;
-                    lauchTheEvent();
-                case Qualif1:
-                    options.raceType = Qualif1;
-                    //loadEliminated();
-                    //options.speedfactor = 20;
-                    lauchTheEvent();
-                case Qualif2:
-                    options.raceType = Qualif2;
+            eventLauncher();
 
-                    lauchTheEvent();
-                case Qualif3:
-                    options.raceType = Qualif3;
-
-                    lauchTheEvent();
-                case GrandP:
-                    options.raceType = GrandP;
-                    loadPostion();
-
-                    printf("Final starting position:/n");
-
-
-                    for (int i = 0; i < 20; i++) {
-
-                        printf("%i-->%i\n",i,finalPostion[i]);
-                        sleep(1);
-                    }
-                    //
-                    //
-                    // while (1){}
-
-
-
-                    lauchTheEvent();
-                    mainMenu();
-
-
-
-
-
-            }
-
-
-
-
-
-            //options.raceType = GrandP;
-
-            //options.speedfactor = 1;
-
-
-
+            mainMenu();
 
 
          case 1:
@@ -1729,8 +1726,9 @@ int mainMenu(void) {
             mainMenu();
             break;
         case 5:
+
             printf("byebye !\n");
-            return 0;
+            exit(0);
 
         default:
             printf("Invalid selection\n");
