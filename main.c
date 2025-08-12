@@ -1131,9 +1131,11 @@ void loadPostion(void) {
 
 
     int numberOfF1toloadByLigne = 20;
-    int stopReading = 4;//lign 4 in the .F1master is the result of q1
+    int stopReading = 5;//lign 4 in the .F1master is the result of q1
 
     int i = 1;
+
+    //yes it's bad but i'm alone and i have to study my network security stuff so..
 
 
     while (fgets(buffer, sizeof(buffer), patate)) {
@@ -1143,7 +1145,7 @@ void loadPostion(void) {
             while (tok && k < numberOfF1toloadByLigne) {
 
                 if (k>=15) {
-                    finalPostion[k-1] = (int)strtol(tok, NULL, 10);
+                    finalPostion[k] = (int)strtol(tok, NULL, 10);
 
 
                 }
@@ -1157,6 +1159,72 @@ void loadPostion(void) {
         i++;
 
     }
+
+    rewind(patate);
+
+
+
+
+
+    stopReading++;//lign 4 in the .F1master is the result of q1
+
+    i = 1;
+
+
+    while (fgets(buffer, sizeof(buffer), patate)) {
+        if (i == stopReading) {
+            int k = 0;
+            char *tok = strtok(buffer, ",");
+            while (tok && k < numberOfF1toloadByLigne) {
+
+                if (k>=10 && k<15) {
+                    finalPostion[k] = (int)strtol(tok, NULL, 10);
+
+
+                }
+                tok = strtok(NULL, ",");
+                k++;
+            }
+
+            break;
+
+        }
+        i++;
+
+    }
+
+
+
+
+
+    rewind(patate);
+    stopReading++;//lign 4 in the .F1master is the result of q1
+
+    i = 1;
+
+
+    while (fgets(buffer, sizeof(buffer), patate)) {
+        if (i == stopReading) {
+            int k = 0;
+            char *tok = strtok(buffer, ",");
+            while (tok && k < numberOfF1toloadByLigne) {
+
+                if (k<10) {
+                    finalPostion[k] = (int)strtol(tok, NULL, 10);
+
+
+                }
+                tok = strtok(NULL, ",");
+                k++;
+            }
+
+            break;
+
+        }
+        i++;
+
+    }
+
 
 
     //printf("%s", buffer);
@@ -1506,7 +1574,7 @@ int mainMenu(void) {
             saveEventType();
             options.laps = 30;//to kick
             //options.speedfactor = speedfactorchanger();
-            options.speedfactor = 250;
+            options.speedfactor = 1250;
             //changeDriverTheme(&currentRacers);
             //options.speedfactor = SPEEDFACTOR;
             //(*data).time_left = TIME_FOR_PRACTICE * SECOND_PER_MINUTE;
@@ -1542,9 +1610,13 @@ int mainMenu(void) {
 
             for (int i = 0; i < 20; i++) {
 
-                printf("-->\n%i",finalPostion[i]);
+                printf("-->%i\n",finalPostion[i]);
                 sleep(1);
             }
+
+
+            while (1){}
+
 
 
             lauchTheEvent();
