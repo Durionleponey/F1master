@@ -201,7 +201,7 @@ int init(void) {
 
 
 
-    printf("parent --> %f",((*data).best_lap));
+    //printf("parent --> %f",((*data).best_lap));
 
 
 
@@ -1401,7 +1401,7 @@ int lauchTheEvent(void) {
                 for (int i=0; i<numberOfRunningkart; i++) {
 
 
-                    printf("%i\n",(*data).qualifiedKard[i]);
+                    //printf("%i\n",(*data).qualifiedKard[i]);
 
 
 
