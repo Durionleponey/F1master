@@ -893,11 +893,22 @@ int speedfactorchanger(void) {
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
-static int cmp_step_done(const void *a, const void *b){
-    const int ia = *(const int *)a;
-    const int ib = *(const int *)b;
+static int cmp_step_done(const void *a, const void *b) {
+    if (options.raceType == GrandP) {
 
-    return karts[ia].bestLapTime -karts[ib].bestLapTime;
+        const int ia = *(const int *)a;
+        const int ib = *(const int *)b;
+
+        return karts[ib].stepDone -karts[ia].stepDone;
+
+    }else {
+        const int ia = *(const int *)a;
+        const int ib = *(const int *)b;
+
+        return karts[ia].bestLapTime -karts[ib].bestLapTime;
+
+    }
+
 }
 
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -1326,6 +1337,53 @@ int lauchTheEvent(void) {
     for (int i =0; i<NUMBEROFKART;i++) {
         qualifiedflag = 0;
 
+        int iSave;
+
+
+
+
+        if (options.raceType == GrandP) {
+
+            iSave = i;
+
+
+
+
+
+
+
+            switch (finalPostion[i]) {
+                case 1:  i = 0;  break;
+                case 2:  i = 1;  break;
+                case 3:  i = 2;  break;
+                case 4:  i = 3;  break;
+                case 10: i = 4;  break;
+                case 11: i = 5;  break;
+                case 14: i = 6;  break;
+                case 16: i = 7;  break;
+                case 18: i = 8;  break;
+                case 20: i = 9;  break;
+                case 22: i = 10; break;
+                case 23: i = 11; break;
+                case 24: i = 12; break;
+                case 27: i = 13; break;
+                case 31: i = 14; break;
+                case 44: i = 15; break;
+                case 55: i = 16; break;
+                case 63: i = 17; break;
+                case 77: i = 18; break;
+                case 81: i = 19; break;
+            }
+
+
+
+
+
+
+
+
+        }
+
 
 
         switch (options.raceType) {
@@ -1392,6 +1450,13 @@ int lauchTheEvent(void) {
 
 
         close(fd[i][1]);
+
+        if (options.raceType == GrandP) {
+            i = iSave;
+
+        }
+
+
 
 
 
@@ -1569,13 +1634,13 @@ int mainMenu(void) {
             //strcpy(options.gpname, "robin");//to kick
             options.trackNumber = trackSelection();
             createAfile();
-            //options.special = weekendTypeSelection();
+            options.special = weekendTypeSelection();
             options.special=1;//to kick
             saveEventType();
-            options.laps = 30;//to kick
-            //options.speedfactor = speedfactorchanger();
-            options.speedfactor = 1250;
-            //changeDriverTheme(&currentRacers);
+            //options.laps = 30;//to kick
+            options.speedfactor = speedfactorchanger();
+            //options.speedfactor = 200;
+            changeDriverTheme(&currentRacers);
             //options.speedfactor = SPEEDFACTOR;
             //(*data).time_left = TIME_FOR_PRACTICE * SECOND_PER_MINUTE;
 
@@ -1603,29 +1668,30 @@ int mainMenu(void) {
 
             lauchTheEvent();
 
+
             options.raceType = GrandP;
 
+            //options.speedfactor = 1;
+
             loadPostion();
+
+            printf("Final starting position:/n");
 
 
             for (int i = 0; i < 20; i++) {
 
-                printf("-->%i\n",finalPostion[i]);
+                printf("%i-->%i\n",i,finalPostion[i]);
                 sleep(1);
             }
-
-
-            while (1){}
+            //
+            //
+            // while (1){}
 
 
 
             lauchTheEvent();
+            mainMenu();
 
-
-            for (int i = 0; i < 20; i++) {
-
-                printf("-->\n%i",(*data).qualifiedKard[i]);
-            }
 
 
          case 1:
