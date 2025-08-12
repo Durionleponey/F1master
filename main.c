@@ -1604,9 +1604,11 @@ int eventLauncher(void) {
 
             for (int i = 0; i < 20; i++) {
 
-                printf("%i-->%i\n",i,finalPostion[i]);
-                sleep(1);
+                printf("%i-->%i\n",i+1,finalPostion[i]);
+
             }
+
+            sleep(5);
             //
             //
             // while (1){}
