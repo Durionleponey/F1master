@@ -1741,6 +1741,7 @@ int mainMenu(void) {
     switch (choice) {
         case 0:
             //pommedeterre
+            options.raceType = Essaie1;
             setGPname();
             //strcpy(options.gpname, "robin");//to kick
             options.trackNumber = trackSelection();
