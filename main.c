@@ -303,6 +303,10 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
         case GrandP:
             karts[id].lapNbr=pParms->laps;
             break;
+        default:
+            karts[id].lapNbr = INFINITY;
+            substractTour =0;
+            break;
     }
 
 
@@ -1821,10 +1825,11 @@ int mainMenu(void) {
     char *choices[] = {
         "1. Start a new GP Week-end",
         "2. Continue a weekend",
-        "3. Show results for a Saison",
-        "4. Show tracks",
-        "5. Show current loaded racers",
-        "6. Exit"
+        "3. Show results for a WE",
+        "4. Show results for a Saison",
+        "5. Show tracks",
+        "6. Show current loaded racers",
+        "7. Exit"
     };
 
     int highlight = 0; // position
@@ -1922,17 +1927,17 @@ int mainMenu(void) {
             printf("comming soon... meaby...");
             mainMenu();
             break;
-        case 3:
+        case 4:
             //displayResultOfAGP();
             showAllTracks();
             mainMenu();
             break;
 
-        case 4:
+        case 5:
             showAllDrivers(currentRacers);
             mainMenu();
             break;
-        case 5:
+        case 6:
 
             printf("byebye !\n");
             exit(0);
