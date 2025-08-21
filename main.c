@@ -74,8 +74,21 @@ typedef enum enumRaceType {
     Qualif2,
     Qualif3,
     GrandP,
+    SpecialEssaie1,
+    SpecialQualifi1,
+    SpecialQualifi2,
+    SpecialQualifi3,
+    SpecialSprint,
+    SpecialQualifi4,
+    SpecialQualifi5,
+    SpecialQualifi6,
+    SpecialGrandP
+
 
   } RaceType;
+
+
+
 
 
 typedef struct structProgramOptions {
