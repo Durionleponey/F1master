@@ -1098,6 +1098,14 @@ int setTimeForTherace() {
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/
+int findKartIndex(int piloteNumber) {
+    for (int i = 0; i < NUMBEROFKART; i++) {
+        if (currentRacers[i].number == piloteNumber) {
+            return i;
+        }
+    }
+    return -2121;
+}
 
 
 
@@ -1801,8 +1809,73 @@ int setRacetype(void) {
 
 
     //printf("%s", buffer);
+/*--------------------------------------------------------------------------------------------------------------------*/
 
 
+int showScoreForWE(void) {
+
+    system("clear");
+
+    char filepath[100];
+    snprintf(filepath, sizeof(filepath), "F1master/%s/%s-%s.f1master", options.gpname, options.gpname, GP_LIST[options.trackNumber].name);
+
+    FILE *patate = fopen(filepath, "r");
+    if (!patate) {
+        perror("🥔🥔🥔🥔🥔");
+        return;
+    }
+
+
+
+
+    char buffer[1024];
+
+
+    //fgets(buffer, sizeof(buffer), patate);//read first line of the file
+
+    int i = 0;
+
+
+
+
+    while (fgets(buffer, sizeof(buffer), patate)) {
+
+        if (i==6) {
+
+            int k = 0;
+            char *tok = strtok(buffer, ",");
+            while (tok && k < NUMBEROFKART) {
+
+                printf("Position %i:--->%s\n", k+1,currentRacers[findKartIndex((int)strtol(tok, NULL, 10))].name); //😭😭😭
+
+
+                tok = strtok(NULL, ",");
+                k++;
+            }
+
+            break;
+
+
+
+
+        }
+        i++;
+
+
+
+    }
+
+
+    fclose(patate);
+
+
+    sleep(5);
+
+
+
+    return 0;
+
+}
 
 
 
@@ -1924,7 +1997,11 @@ int mainMenu(void) {
             break;
 
         case 2:
-            printf("comming soon... meaby...");
+            setGPname();
+            //strcpy(options.gpname, "robin");//to kick
+            options.trackNumber = trackSelection();
+
+            showScoreForWE();
             mainMenu();
             break;
         case 4:
