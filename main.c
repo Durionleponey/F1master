@@ -1075,6 +1075,7 @@ int setTimeForTherace() {
         case GrandP:
         case SpecialGrandP:
             (*data).time_left = 2*TIME_FOR_PRACTICE * SECOND_PER_MINUTE;
+            break;
         case SpecialQualifi1:
             (*data).time_left = TIME_FOR_QUALIF1SPECIAL * SECOND_PER_MINUTE;
             break;
@@ -1097,7 +1098,7 @@ int setTimeForTherace() {
 
 
 
-void displayPractice(int readytosave)
+void displayPractice(int readytosave)//need to update the name to display event
 {
 
     int ii;
@@ -1114,6 +1115,7 @@ void displayPractice(int readytosave)
 
 
 
+
     qsort(order, NUMBEROFKART, sizeof(int), cmp_step_done);
 
 
@@ -1125,7 +1127,37 @@ void displayPractice(int readytosave)
 
     for (int i = 0; i < NUMBEROFKART; ++i) {
         ii = order[i];
-        tdiff = (karts[ii].bestLapTime - karts[order[i-1]].bestLapTime) / 1000.0f;
+
+
+
+
+
+        if (options.raceType != GrandP) {
+
+            if (i == 0) {
+                tdiff = 0.0f;
+            }else {
+                tdiff = (karts[ii].bestLapTime - karts[order[i-1]].bestLapTime) / 1000.0f;
+
+
+            }
+
+        }else {
+
+            if (i == 0) {
+                tdiff = 0.0f;
+            } else {
+                int tourDiff = karts[order[0]].stepDone - karts[ii].stepDone;
+                if (tourDiff > 0) {
+                    tdiff = tourDiff * (karts[order[0]].bestLapTime / 3000.0f);
+                } else {
+                    tdiff = (karts[ii].bestLapTime - karts[order[0]].bestLapTime) / 1000.0f;
+                }
+            }
+
+        }
+
+
 
         if (!karts[ii].lapNbr)karts[ii].isOut = true;
 
@@ -1158,6 +1190,7 @@ void displayPractice(int readytosave)
     int minutes = secondes / 60;
     int reste_secondes = secondes % 60;
     printf("Time left: %02d:%02d\n\n", minutes, reste_secondes);
+
 
 
 
@@ -1654,6 +1687,7 @@ int eventLauncher(void) {
 
             lauchTheEvent();
         case GrandP:
+            //options.speedfactor =1;
             options.raceType = GrandP;
             loadPostion();
 
@@ -1682,7 +1716,31 @@ int eventLauncher(void) {
             options.raceType = SpecialEssaie1;
             //while (1){}
             lauchTheEvent();
-
+        case SpecialQualifi1:
+            options.raceType = SpecialQualifi1;
+            lauchTheEvent();
+        case SpecialQualifi2:
+            options.raceType = SpecialQualifi2;
+            lauchTheEvent();
+        case SpecialQualifi3:
+            options.raceType = SpecialQualifi3;
+            lauchTheEvent();
+        case SpecialSprint:
+            options.raceType = SpecialSprint;
+            lauchTheEvent();
+        case SpecialQualifi4:
+            options.raceType = SpecialQualifi4;
+            lauchTheEvent();
+        case SpecialQualifi5:
+            options.raceType = SpecialQualifi5;
+            lauchTheEvent();
+        case SpecialQualifi6:
+            options.raceType = SpecialQualifi6;
+            lauchTheEvent();
+        case SpecialGrandP:
+            options.raceType = SpecialGrandP;
+            lauchTheEvent();
+            break;
 
 
     }
@@ -1820,7 +1878,11 @@ int mainMenu(void) {
             options.trackNumber = trackSelection();
             createAfile();
             //options.special = weekendTypeSelection();
+
+
             options.special=GP_LIST[options.trackNumber].hasSprint;
+
+            options.special = 1;
 
             if (options.special){options.raceType = SpecialEssaie1;}
             saveEventType();
