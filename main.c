@@ -1821,7 +1821,9 @@ int showScoreForWE(void) {
 
     FILE *patate = fopen(filepath, "r");
     if (!patate) {
-        perror("🥔🥔🥔🥔🥔");
+
+        perror("ERROR WEEK END NOT DONE");
+        sleep(5);
         return;
     }
 
