@@ -34,6 +34,13 @@
 #define TIME_FOR_QUALIF2 15
 #define TIME_FOR_QUALIF3 12
 
+
+#define TIME_FOR_QUALIF1SPECIAL 12
+#define TIME_FOR_QUALIF2SPECIAL 10
+#define TIME_FOR_QUALIF3SPECIAL 8
+
+// Q1 : 12 minutes, Q2 : 10 minutes, Q3 : 8 minutes
+
 #define CHANCETOGOPITING 10
 #define CHANCETOGOOUT 1000
 #define SECONDLOSTINPIT 25
@@ -1050,19 +1057,33 @@ int setTimeForTherace() {
         case Essaie1:
         case Essaie2:
         case Essaie3:
+        case SpecialEssaie1:
             (*data).time_left = TIME_FOR_PRACTICE * SECOND_PER_MINUTE;
             break;
         case Qualif1:
+        case SpecialQualifi4:
             (*data).time_left = TIME_FOR_QUALIF1 * SECOND_PER_MINUTE;
             break;
         case Qualif2:
+        case SpecialQualifi5:
             (*data).time_left = TIME_FOR_QUALIF2 * SECOND_PER_MINUTE;
             break;
         case Qualif3:
+        case SpecialQualifi6:
             (*data).time_left = TIME_FOR_QUALIF3 * SECOND_PER_MINUTE;
             break;
         case GrandP:
+        case SpecialGrandP:
             (*data).time_left = 2*TIME_FOR_PRACTICE * SECOND_PER_MINUTE;
+        case SpecialQualifi1:
+            (*data).time_left = TIME_FOR_QUALIF1SPECIAL * SECOND_PER_MINUTE;
+            break;
+        case SpecialQualifi2:
+            (*data).time_left = TIME_FOR_QUALIF1SPECIAL * SECOND_PER_MINUTE;
+            break;
+        case SpecialQualifi3:
+            (*data).time_left = TIME_FOR_QUALIF1SPECIAL * SECOND_PER_MINUTE;
+            break;
 
 
     }
@@ -1659,6 +1680,7 @@ int eventLauncher(void) {
 
         case SpecialEssaie1:
             options.raceType = SpecialEssaie1;
+            //while (1){}
             lauchTheEvent();
 
 
