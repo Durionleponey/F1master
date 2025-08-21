@@ -1710,7 +1710,7 @@ int eventLauncher(void) {
 
             for (int i = 0; i < 20; i++) {
 
-                printf("%i-->%i\n",i+1,finalPostion[i]);
+                printf("%i: num : %i name : %s \n",i+1,finalPostion[i],currentRacers[findKartIndex(finalPostion[i])].name);
 
             }
 
@@ -1960,7 +1960,7 @@ int mainMenu(void) {
 
             options.special=GP_LIST[options.trackNumber].hasSprint;
 
-            options.special = 1;
+            //options.special = 1;
 
             if (options.special){options.raceType = SpecialEssaie1;}
             saveEventType();
