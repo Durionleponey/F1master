@@ -1753,8 +1753,8 @@ int mainMenu(void) {
             //strcpy(options.gpname, "robin");//to kick
             options.trackNumber = trackSelection();
             createAfile();
-            options.special = weekendTypeSelection();
-            options.special=1;//to kick
+            //options.special = weekendTypeSelection();
+            options.special=GP_LIST[options.trackNumber].hasSprint;
             saveEventType();
             //options.laps = 30;//to kick
             options.speedfactor = speedfactorchanger();
@@ -1773,8 +1773,8 @@ int mainMenu(void) {
             setGPname();
             //strcpy(options.gpname, "robin");//to kick
             options.trackNumber = trackSelection();
-            options.special=1;//to kick
-            //options.laps = 30;//to kick
+
+            options.special=GP_LIST[options.trackNumber].hasSprint;            //options.laps = 30;//to kick
             options.speedfactor = speedfactorchanger();
             //options.speedfactor = 200;
             changeDriverTheme(&currentRacers);
