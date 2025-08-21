@@ -74,16 +74,15 @@ typedef enum enumRaceType {
     Qualif2,
     Qualif3,
     GrandP,
-    SpecialEssaie1,
-    SpecialQualifi1,
-    SpecialQualifi2,
-    SpecialQualifi3,
-    SpecialSprint,
-    SpecialQualifi4,
+    SpecialEssaie1,//60
+    SpecialQualifi1,//12
+    SpecialQualifi2,//10
+    SpecialQualifi3,//8
+    SpecialSprint,//100KM
+    SpecialQualifi4,//temp normal
     SpecialQualifi5,
     SpecialQualifi6,
-    SpecialGrandP
-
+    SpecialGrandP//course normal
 
   } RaceType;
 
@@ -498,6 +497,33 @@ int animation(){
             break;
         case GrandP:
             strcpy(event, "GrandPrix Race");
+            break;
+        case SpecialEssaie1:
+            strcpy(event, "Essai (week-end sprint)");
+            break;
+        case SpecialQualifi1:
+            strcpy(event, "Qualification Sprint - Q1");
+            break;
+        case SpecialQualifi2:
+            strcpy(event, "Qualification Sprint - Q2");
+            break;
+        case SpecialQualifi3:
+            strcpy(event, "Qualification Sprint - Q3");
+            break;
+        case SpecialSprint:
+            strcpy(event, "Course Sprint");
+            break;
+        case SpecialQualifi4:
+            strcpy(event, "Qualification Course - Q1");
+            break;
+        case SpecialQualifi5:
+            strcpy(event, "Qualification Course - Q2");
+            break;
+        case SpecialQualifi6:
+            strcpy(event, "Qualification Course - Q3");
+            break;
+        case SpecialGrandP:
+            strcpy(event, "Grand Prix Race (week-end sprint)");
             break;
     }
 
@@ -1629,6 +1655,11 @@ int eventLauncher(void) {
 
 
             lauchTheEvent();
+            break;
+
+        case SpecialEssaie1:
+            options.raceType = SpecialEssaie1;
+            lauchTheEvent();
 
 
 
@@ -1713,7 +1744,7 @@ int mainMenu(void) {
         "3. Show results for a Saison",
         "4. Show tracks",
         "5. Show current loaded racers",
-        "99. Exit"
+        "6. Exit"
     };
 
     int highlight = 0; // position
@@ -1768,6 +1799,8 @@ int mainMenu(void) {
             createAfile();
             //options.special = weekendTypeSelection();
             options.special=GP_LIST[options.trackNumber].hasSprint;
+
+            if (options.special){options.raceType = SpecialEssaie1;}
             saveEventType();
             //options.laps = 30;//to kick
             options.speedfactor = speedfactorchanger();
@@ -1786,8 +1819,9 @@ int mainMenu(void) {
             setGPname();
             //strcpy(options.gpname, "robin");//to kick
             options.trackNumber = trackSelection();
-
-            options.special=GP_LIST[options.trackNumber].hasSprint;            //options.laps = 30;//to kick
+            options.special=GP_LIST[options.trackNumber].hasSprint;
+            if (options.special){options.raceType = SpecialEssaie1;}//yep now the number at the top of the file is useless but i'have to study my cisco stuff
+            //options.laps = 30;//to kick
             options.speedfactor = speedfactorchanger();
             //options.speedfactor = 200;
             changeDriverTheme(&currentRacers);
