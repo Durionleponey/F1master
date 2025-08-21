@@ -4,7 +4,14 @@ because why not ?
 
 
 launch & compil:
-cmake .. && make && ./OS2
+
+git clone https://github.com/Durionleponey/F1master.git
+
+cd F1master
+
+cmake . && make && ./OS2
+
+Times are stored in ./F1master/SaisonName/EventName.f1master
 
 <img width="2143" height="877" alt="image" src="https://github.com/user-attachments/assets/e36d1778-d05d-4a35-bff4-a3e4dab30a3f" />
 
