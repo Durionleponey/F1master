@@ -11,6 +11,7 @@
 #include <poll.h>    // poll() pour surveiller 20 pipes
 #include <semaphore.h>
 #include <sys/wait.h>
+#include <dirent.h>
 #include <iso646.h>
 
 
@@ -291,7 +292,7 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
 
 
 
-    if (pParms->special){}
+    //if (pParms->special){}
 
     int substractTour =1;
 
@@ -306,6 +307,7 @@ int genTimeCore(ProgramOptions *pParms, int fd[2],int id) {
             substractTour =0;
             break;
         case GrandP:
+        case SpecialGrandP:
             karts[id].lapNbr=pParms->laps;
             break;
         default:
@@ -691,7 +693,7 @@ void showAllTracks(void) {
     mvprintw(2, 2, "---------------------------");
 
     for (int i = 0; i < NUMBEROFRACE; i++) {
-        mvprintw(4 + i, 2, "%d .%10s. %10s | number of laps: %i,Sprint Laps: %d",
+        mvprintw(4 + i, 2, "%-5d %-10s %-10s number of laps: %-10i,Sprint Laps: %-10d",
                 i,
                  GP_LIST[i].name,
                  GP_LIST[i].circuit,
@@ -994,6 +996,85 @@ int saveEventType() {
 }
 
 
+//printf("%s", buffer);
+/*--------------------------------------------------------------------------------------------------------------------*/
+
+
+int showScoreForWE(void) {
+
+    system("clear");
+
+    int finalPoint[] = {25, 20, 15, 10, 8, 6, 5, 3, 2, 1,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
+
+    char filepath[100];
+    snprintf(filepath, sizeof(filepath), "F1master/%s/%s-%s.f1master", options.gpname, options.gpname, GP_LIST[options.trackNumber].name);
+
+    FILE *patate = fopen(filepath, "r");
+    if (!patate) {
+
+        perror("ERROR WEEK END NOT DONE");
+        sleep(5);
+        return;
+    }
+
+
+
+
+    char buffer[1024];
+
+
+    //fgets(buffer, sizeof(buffer), patate);//read first line of the file
+
+    int i = 0;
+
+    printf("\n\n\nResult for Saison : %s, Race : %s \n\n\n",options.gpname,GP_LIST[options.trackNumber].name);
+
+
+
+
+    while (fgets(buffer, sizeof(buffer), patate)) {
+
+        if (i==6) {
+
+            int k = 0;
+            char *tok = strtok(buffer, ",");
+            while (tok && k < NUMBEROFKART) {
+
+                printf("Position %-3i:%-20s : score :%i\n", k+1,currentRacers[findKartIndex((int)strtol(tok, NULL, 10))].name,finalPoint[k]); //😭😭😭
+
+
+                tok = strtok(NULL, ",");
+                k++;
+            }
+
+            break;
+
+
+
+
+        }
+        i++;
+
+
+
+    }
+
+
+    fclose(patate);
+
+
+    sleep(7);
+
+
+
+    return 0;
+
+}
+
+
+
+
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
@@ -1118,6 +1199,61 @@ int findKartIndex(int piloteNumber) {
 void displayPractice(int readytosave)//need to update the name to display event
 {
 
+
+
+    char event[100];
+
+    switch (options.raceType) {
+        case Essaie1:
+            strcpy(event, "Essaie 1 (Sort by best lap time)");
+            break;
+        case Essaie2:
+            strcpy(event, "Essaie 2 (Sort by best lap time)");
+            break;
+        case Essaie3:
+            strcpy(event, "Essaie 3 (Sort by best lap time)");
+            break;
+        case Qualif1:
+            strcpy(event, "Qualification 1 (Sort by best lap time)");
+            break;
+        case Qualif2:
+            strcpy(event, "Qualification 2 (Sort by best lap time)");
+            break;
+        case Qualif3:
+            strcpy(event, "Qualification 3 (Sort by best lap time)");
+            break;
+        case GrandP:
+            strcpy(event, "GrandPrix Race (Sort by position in the race)");
+            break;
+        case SpecialEssaie1:
+            strcpy(event, "Essai (week-end sprint)");
+            break;
+        case SpecialQualifi1:
+            strcpy(event, "Qualification Sprint - Q1");
+            break;
+        case SpecialQualifi2:
+            strcpy(event, "Qualification Sprint - Q2");
+            break;
+        case SpecialQualifi3:
+            strcpy(event, "Qualification Sprint - Q3");
+            break;
+        case SpecialSprint:
+            strcpy(event, "Course Sprint");
+            break;
+        case SpecialQualifi4:
+            strcpy(event, "Qualification Course - Q1");
+            break;
+        case SpecialQualifi5:
+            strcpy(event, "Qualification Course - Q2");
+            break;
+        case SpecialQualifi6:
+            strcpy(event, "Qualification Course - Q3");
+            break;
+        case SpecialGrandP:
+            strcpy(event, "Grand Prix Race (week-end sprint)");
+            break;
+    }
+
     int ii;
     int order[NUMBEROFKART];
 
@@ -1136,11 +1272,17 @@ void displayPractice(int readytosave)//need to update the name to display event
     qsort(order, NUMBEROFKART, sizeof(int), cmp_step_done);
 
 
+
+
     printf("\033[H\033[J");
 
-    printf("%-3s |%-4s | %-20s | %-9s | %-9s | %-9s | %-9s | %-9s | %-9s | %-9s | %-9s | %-5s | %-2s | %-1s\n",
-           "#", "Num", "Pilote", "S1", "S2", "S3", "BS1", "BS2", "BS3", "BLaps", "TDiff", "Laps","Pit","Crash");
-    puts("-------------------------------------------------------------------------------------------------------------------------------------------------------");
+
+    printf("\nSaison : %s, Race : %s, Event : %s \n\n\n",options.gpname,GP_LIST[options.trackNumber].name,event);
+
+
+    printf("%-3s |%-4s | %-20s | %-9s | %-9s | %-9s | %-9s | %-9s | %-9s | %-9s | %-9s | %-10s | %-2s | %-1s\n",
+           "#", "Num", "Pilote", "S1", "S2", "S3", "BS1", "BS2", "BS3", "BLaps", "TDiff", "LapsLeft","Pit","Crash");
+    puts("-------------------------------------------------------------------------------------------------------------------------------------------------------------");
 
     for (int i = 0; i < NUMBEROFKART; ++i) {
         ii = order[i];
@@ -1149,7 +1291,7 @@ void displayPractice(int readytosave)//need to update the name to display event
 
 
 
-        if (options.raceType != GrandP) {
+        if (options.raceType != GrandP && options.raceType != SpecialGrandP) {
 
             if (i == 0) {
                 tdiff = 0.0f;
@@ -1179,7 +1321,7 @@ void displayPractice(int readytosave)//need to update the name to display event
         if (!karts[ii].lapNbr)karts[ii].isOut = true;
 
 
-        printf("%-3d | %-3d | %-20s | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %-5d | %-5s | %-5s\n",
+        printf("%-3d | %-3d | %-20s | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %8.3f\" | %-10d | %-5s | %-5s\n",
             i+1,
                currentRacers[ii].number,
                currentRacers[ii].name,
@@ -1727,6 +1869,7 @@ int eventLauncher(void) {
 
 
             lauchTheEvent();
+            showScoreForWE();
             break;
 
         case SpecialEssaie1:
@@ -1809,82 +1952,11 @@ int setRacetype(void) {
 
 
 
-
-
-
-
-    //printf("%s", buffer);
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 
-int showScoreForWE(void) {
 
-    system("clear");
-
-    int finalPoint[] = {25, 20, 15, 10, 8, 6, 5, 3, 2, 1,0,0,0,0,0,0,0,0,0,0,0,0,0};
-
-
-    char filepath[100];
-    snprintf(filepath, sizeof(filepath), "F1master/%s/%s-%s.f1master", options.gpname, options.gpname, GP_LIST[options.trackNumber].name);
-
-    FILE *patate = fopen(filepath, "r");
-    if (!patate) {
-
-        perror("ERROR WEEK END NOT DONE");
-        sleep(5);
-        return;
-    }
-
-
-
-
-    char buffer[1024];
-
-
-    //fgets(buffer, sizeof(buffer), patate);//read first line of the file
-
-    int i = 0;
-
-
-
-
-    while (fgets(buffer, sizeof(buffer), patate)) {
-
-        if (i==6) {
-
-            int k = 0;
-            char *tok = strtok(buffer, ",");
-            while (tok && k < NUMBEROFKART) {
-
-                printf("Position %-5i:--->%-20s : score ---> %i\n", k+1,currentRacers[findKartIndex((int)strtol(tok, NULL, 10))].name,finalPoint[k]); //😭😭😭
-
-
-                tok = strtok(NULL, ",");
-                k++;
-            }
-
-            break;
-
-
-
-
-        }
-        i++;
-
-
-
-    }
-
-
-    fclose(patate);
-
-
-    sleep(5);
-
-
-
-    return 0;
-
+int showScoresForSeason(void) {
 }
 
 
@@ -2012,6 +2084,12 @@ int mainMenu(void) {
             options.trackNumber = trackSelection();
 
             showScoreForWE();
+            mainMenu();
+            break;
+        case 3:
+            setGPname();
+            //strcpy(options.gpname, "robin");//to kick
+            showScoresForSeason();
             mainMenu();
             break;
         case 4:
