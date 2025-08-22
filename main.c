@@ -51,6 +51,8 @@
 
 #define SPEEDFACTOR 50
 
+
+
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 
@@ -92,6 +94,9 @@ typedef enum enumRaceType {
     SpecialGrandP//course normal
 
   } RaceType;
+
+
+
 
 
 
@@ -1816,6 +1821,9 @@ int showScoreForWE(void) {
 
     system("clear");
 
+    int finalPoint[] = {25, 20, 15, 10, 8, 6, 5, 3, 2, 1,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
+
     char filepath[100];
     snprintf(filepath, sizeof(filepath), "F1master/%s/%s-%s.f1master", options.gpname, options.gpname, GP_LIST[options.trackNumber].name);
 
@@ -1848,7 +1856,7 @@ int showScoreForWE(void) {
             char *tok = strtok(buffer, ",");
             while (tok && k < NUMBEROFKART) {
 
-                printf("Position %i:--->%s\n", k+1,currentRacers[findKartIndex((int)strtol(tok, NULL, 10))].name); //😭😭😭
+                printf("Position %-5i:--->%-20s : score ---> %i\n", k+1,currentRacers[findKartIndex((int)strtol(tok, NULL, 10))].name,finalPoint[k]); //😭😭😭
 
 
                 tok = strtok(NULL, ",");
