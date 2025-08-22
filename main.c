@@ -1957,7 +1957,93 @@ int setRacetype(void) {
 
 
 int showScoresForSeason(void) {
+    system("clear");
+
+    int finalPoint[] = {25, 20, 15, 10, 8, 6, 5, 3, 2, 1,
+                        0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+    typedef struct { int idx; int score; } Rank;
+
+    int cmpRankDesc(const void *pa, const void *pb) {
+        const Rank *a = pa, *b = pb;
+        if (b->score != a->score) return b->score - a->score;
+        return a->idx - b->idx;
+    }
+
+    int finalScore[NUMBEROFKART] = {0};
+    Rank ranks[NUMBEROFKART];
+
+    char seasonPath[100];
+    snprintf(seasonPath, sizeof(seasonPath), "F1master/%s", options.gpname);
+
+    DIR *dir = opendir(seasonPath);
+    if (!dir) {
+        perror("😯😯😯😯😯😯😯 saison don't exist");
+        sleep(5);
+        return -1;
+    }
+
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL) {
+        if (entry->d_type == DT_REG) {
+            char filepath[200];
+            snprintf(filepath, sizeof(filepath), "%s/%s", seasonPath, entry->d_name);
+
+            FILE *patate = fopen(filepath, "r");
+            if (!patate) {
+                perror("errrororeoreo");
+                continue;
+            }
+
+            char buffer[1024];
+            int i = 0;
+
+            while (fgets(buffer, sizeof(buffer), patate)) {
+                if (i == 6) {
+                    printf("\nResult for %s :\n", entry->d_name);
+                    int k = 0;
+                    char *tok = strtok(buffer, ",");
+                    while (tok && k < NUMBEROFKART) {
+                        int carNum = (int)strtol(tok, NULL, 10);
+                        int idx = findKartIndex(carNum);
+                        if (idx != -1) {
+                            printf("Position %-2i : %-20s | Score: %i\n",
+                                   k+1, currentRacers[idx].name, finalPoint[k]);
+                            finalScore[idx] += finalPoint[k];
+                        }
+                        tok = strtok(NULL, ",");
+                        k++;
+                    }
+                    break;
+                }
+                i++;
+            }
+            fclose(patate);
+        }
+    }
+
+    closedir(dir);
+
+    for (int i = 0; i < NUMBEROFKART; i++) {
+        ranks[i].idx = i;
+        ranks[i].score = finalScore[i];
+    }
+
+    qsort(ranks, NUMBEROFKART, sizeof(Rank), cmpRankDesc);
+
+    printf("\n\nFINAL SCORE FOR THE SAISON:\n");
+    printf("***********************************\n");
+
+    for (int i = 0; i < NUMBEROFKART; i++) {
+        int a = ranks[i].idx;
+        printf("%i: num : %i name : %s score : %i\n",
+               i+1, a, currentRacers[a].name, finalScore[a]);
+    }
+
+    sleep(20);
+    return 0;
 }
+
 
 
 
